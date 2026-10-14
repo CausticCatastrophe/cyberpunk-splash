@@ -27,18 +27,27 @@ Requires Plasma 6 (`plasma-workspace`) and the `base-devel` and `git`
 packages to build.
 
 ```
+cd "$(mktemp -d)"
 git clone https://github.com/CausticCatastrophe/cyberpunk-splash
 cd cyberpunk-splash
 makepkg -si
 ```
 
+This builds in a temporary directory, so nothing is left in your home folder.
 `makepkg` clones the repo again as its build source, builds the package, and
 `-si` installs it with pacman (it asks for your sudo password). The install
-hook stamps the theme with your system details. To update later, `git pull`
-and run `makepkg -si` again.
+hook stamps the theme with your system details.
 
-Then open System Settings, Colors & Themes, Splash Screen, and choose
-**Cyberpunk Splash**.
+When it finishes, remove the clone (or just let a reboot clear `/tmp`):
+
+```
+cd .. && rm -rf cyberpunk-splash
+```
+
+To update later, repeat the same steps with a fresh clone.
+
+After installing, open System Settings, Colors & Themes, Splash Screen, and
+choose **Cyberpunk Splash**.
 
 Fonts (Rajdhani, Share Tech Mono) are bundled under SIL OFL; no font
 packages are needed.
