@@ -23,10 +23,19 @@ roll effects are animated and only show while it runs.
 
 ## Install
 
+Requires Plasma 6 (`plasma-workspace`) and the `base-devel` and `git`
+packages to build.
+
 ```
-makepkg -f
-sudo pacman -U cyberpunk-splash-1.0-1-any.pkg.tar.zst
+git clone https://github.com/CausticCatastrophe/cyberpunk-splash
+cd cyberpunk-splash
+makepkg -si
 ```
+
+`makepkg` clones the repo again as its build source, builds the package, and
+`-si` installs it with pacman (it asks for your sudo password). The install
+hook stamps the theme with your system details. To update later, `git pull`
+and run `makepkg -si` again.
 
 Then open System Settings, Colors & Themes, Splash Screen, and choose
 **Cyberpunk Splash**.
