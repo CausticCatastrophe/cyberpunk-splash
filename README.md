@@ -1,4 +1,4 @@
-# cyberpunk-splash
+# Cyberpunk Splash
 
 A cyberpunk-style KDE Plasma 6 splash screen for Arch-based systems. It is
 driven by Plasma's startup `stage` (0 to 6): a boot log fills in, a segmented
