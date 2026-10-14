@@ -1,0 +1,12 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "caustic"
+            }
+        ],
+        "Id": "CyberpunkSplash",
+        "License": "GPL-2.0-or-later",
+        "Name": "Cyberpunk Splash"
+    }
+}

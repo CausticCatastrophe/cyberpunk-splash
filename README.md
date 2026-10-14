@@ -124,9 +124,42 @@ Login Screen and choose the wallpaper image, or set it in
 Image=file:///var/lib/plasmalogin/wallpapers/cyberpunk-splash.png
 ```
 
+The login manager draws its own clock, user picker and password box over the
+wallpaper, and their layout is fixed. Two settings keep the wallpaper out of
+their way:
+
+| Setting | Values | Effect |
+|---|---|---|
+| `LOGIN_TITLE` | yes / no | Show or hide the title and tagline |
+| `LOGIN_TITLE_Y` | 0 to 80 | Title position, as a percent of the screen height from the top. Raise it to move the title below the clock |
+
+To hide the login clock itself, untick "Show clock" on the Login Screen page
+in System Settings. It is stored as `ShowClock` in `/etc/plasmalogin.conf`.
+
 After that, any config change plus `sudo cyberpunk-splash-stamp` updates the
 login screen on its next appearance. To render a wallpaper by hand without
 installing, run `wallpaper/render OUT.png [ACCENT] [SECONDARY]` from the repo.
+
+## Lock screen wallpaper
+
+The same image is also installed as a regular Plasma wallpaper named
+**Cyberpunk Splash** in `/usr/share/wallpapers/CyberpunkSplash/`, and the stamp
+refreshes it together with the login wallpaper. The login copy lives in a
+folder only the login manager can read, so use this one for your own session.
+
+To use it on the lock screen: System Settings, Colors & Themes, Screen
+Locking, Appearance, Configure, then choose **Cyberpunk Splash**. Or from a
+terminal:
+
+```
+kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper \
+    --group org.kde.image --group General --key Image \
+    file:///usr/share/wallpapers/CyberpunkSplash
+```
+
+It also shows up in the desktop wallpaper picker. The lock screen draws its own
+clock over the image, like the login screen, so `LOGIN_TITLE_Y` and
+`LOGIN_TITLE` apply to both.
 
 ## Preview
 
@@ -159,7 +192,7 @@ PKGBUILD                  package definition
 cyberpunk-splash-stamp    writes SystemInfo.qml and the login wallpaper
 cyberpunk-splash.hook     pacman hook that triggers the stamp
 cyberpunk-splash.conf     default config (installed to /etc)
-wallpaper/                login wallpaper design and render script
+wallpaper/                login and lock wallpaper: design, render script, package files
 theme/                    the Plasma look-and-feel package
   metadata.json
   contents/splash/

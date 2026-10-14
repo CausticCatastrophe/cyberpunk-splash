@@ -43,6 +43,11 @@ package() {
     install -Dm755 "$src/wallpaper/render" \
         "$pkgdir/usr/lib/cyberpunk-splash/render-wallpaper"
 
+    install -Dm644 "$src/wallpaper/metadata.json" \
+        "$pkgdir/usr/share/wallpapers/CyberpunkSplash/metadata.json"
+    install -Dm644 "$src/wallpaper/default.png" \
+        "$pkgdir/usr/share/wallpapers/CyberpunkSplash/contents/images/2560x1440.png"
+
     install -Dm755 "$src/cyberpunk-splash-stamp" \
         "$pkgdir/usr/bin/cyberpunk-splash-stamp"
     install -Dm644 "$src/cyberpunk-splash.hook" \

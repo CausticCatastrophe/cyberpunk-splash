@@ -10,6 +10,8 @@ Rectangle {
     property color secondary: "#02d7f2"
     property string title: "CYBERPUNK"
     property string tagline: "OS // neural desktop"
+    property real titleY: 0.12      // title top, as a fraction of the height
+    property bool showTitle: true
     property string headFont: "Rajdhani"
     property string monoFont: "Share Tech Mono"
 
@@ -46,10 +48,11 @@ Rectangle {
     // A secondary-colored ghost sits just behind the title, like the splash's glitch.
     Text {
         x: -root.u * 0.3
-        y: root.height * 0.12
+        y: root.height * root.titleY
         width: root.width
         horizontalAlignment: Text.AlignHCenter
         text: root.title
+        visible: root.showTitle
         color: root.secondary
         opacity: 0.22
         font.family: root.headFont
@@ -58,10 +61,11 @@ Rectangle {
         font.letterSpacing: root.u * 0.7
     }
     Text {
-        y: root.height * 0.12
+        y: root.height * root.titleY
         width: root.width
         horizontalAlignment: Text.AlignHCenter
         text: root.title
+        visible: root.showTitle
         color: "#e8e6d9"
         opacity: 0.65
         font.family: root.headFont
@@ -70,10 +74,11 @@ Rectangle {
         font.letterSpacing: root.u * 0.7
     }
     Text {
-        y: root.height * 0.12 + root.u * 11.6
+        y: root.height * root.titleY + root.u * 11.6
         width: root.width
         horizontalAlignment: Text.AlignHCenter
         text: root.tagline.toUpperCase()
+        visible: root.showTitle
         color: root.accent
         opacity: 0.75
         font.family: root.headFont

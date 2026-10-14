@@ -107,7 +107,12 @@ if [ "$(flag LOGIN_WALLPAPER yes)" = true ]; then
     if [ -d "$wpdir" ] && [ -x "$render" ] && [ -f "$wpqml" ]; then
         wptmp=$(mktemp "$wpdir/.cyberpunk.XXXXXX.png" 2>/dev/null || true)
         if [ -n "$wptmp" ]; then
-            if CYBERPUNK_TITLE="$title" CYBERPUNK_TAGLINE="$tagline" \
+            ty=$(cfg LOGIN_TITLE_Y 12)
+            case "$ty" in ''|*[!0-9]*) ty=12 ;; esac
+            [ "$ty" -le 80 ] || ty=12
+            if CYBERPUNK_TITLE_Y="$(awk "BEGIN { printf \"%.2f\", $ty / 100 }")" \
+                CYBERPUNK_SHOW_TITLE="$(flag LOGIN_TITLE yes)" \
+                CYBERPUNK_TITLE="$title" CYBERPUNK_TAGLINE="$tagline" \
                 CYBERPUNK_WALLPAPER_QML="$wpqml" CYBERPUNK_FONTS_DIR="$theme/fonts" \
                 timeout 60 "$render" "$wptmp" \
                 "$(hue ACCENT '#fcee09')" "$(hue SECONDARY '#02d7f2')" 2>/dev/null; then
@@ -115,6 +120,12 @@ if [ "$(flag LOGIN_WALLPAPER yes)" = true ]; then
                     chown plasmalogin:plasmalogin "$wptmp"
                 fi
                 chmod 644 "$wptmp"
+                # same image for the lock screen and desktop pickers, in a
+                # place every user's session can read
+                sysdir=${CYBERPUNK_SYSWALL_DIR:-/usr/share/wallpapers/CyberpunkSplash/contents/images}
+                if [ -d "$sysdir" ]; then
+                    install -m 644 "$wptmp" "$sysdir/2560x1440.png" || true
+                fi
                 mv -f "$wptmp" "$wpdir/cyberpunk-splash.png"
             else
                 rm -f "$wptmp"
