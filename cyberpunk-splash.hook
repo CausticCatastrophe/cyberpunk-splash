@@ -5,6 +5,7 @@ Operation = Remove
 Type = Package
 Target = linux*
 Target = plasma-workspace
+Target = qt6-base
 Target = filesystem
 Target = cyberpunk-splash
 

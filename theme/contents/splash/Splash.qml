@@ -21,6 +21,13 @@ Rectangle {
     readonly property string subName: rajdhaniSemi.status === FontLoader.Ready ? rajdhaniSemi.name : "Noto Sans"
     readonly property string monoName: shareTechMono.status === FontLoader.Ready ? shareTechMono.name : "monospace"
     readonly property int maxStage: 6
+    // read live from Qt, so it reflects the session the splash is running in
+    readonly property string session: {
+        var p = Qt.platform.pluginName;
+        if (p.indexOf("wayland") === 0) return "wayland";
+        if (p === "xcb") return "x11";
+        return p;
+    }
 
     readonly property var steps: [
         "initializing session", "session manager", "compositor",
@@ -81,7 +88,7 @@ Rectangle {
         HudText { x: root.u * 2.4; y: root.u * 2.2; text: [sys.osName, sys.hostname].filter(function (s) { return s !== "" }).join(" // ").toUpperCase() }
         HudText { x: root.width - width - root.u * 2.4; y: root.u * 2.2; text: sys.kernel !== "" ? ("KERNEL " + sys.kernel).toUpperCase() : "" }
         HudText { x: root.u * 2.4; y: root.height - height - root.u * 2.2; text: sys.plasma !== "" ? ("PLASMA " + sys.plasma).toUpperCase() : "" }
-        HudText { x: root.width - width - root.u * 2.4; y: root.height - height - root.u * 2.2; text: sys.osVersion.toUpperCase() }
+        HudText { x: root.width - width - root.u * 2.4; y: root.height - height - root.u * 2.2; text: [sys.qt !== "" ? "QT " + sys.qt : "", root.session].filter(function (s) { return s !== "" }).join(" // ").toUpperCase() }
 
         // title with a periodic RGB-split glitch
         Item {

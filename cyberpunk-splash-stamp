@@ -43,6 +43,11 @@ hue() { # hue KEY DEFAULT_HEX -> #rrggbb (named color, hex, or the default)
         green) echo '#39ff88' ;;
         orange) echo '#ff7a1a' ;;
         violet) echo '#b48cff' ;;
+        pink) echo '#ff6ec7' ;;
+        teal) echo '#12c29b' ;;
+        lime) echo '#b6ff3d' ;;
+        amber) echo '#ffb000' ;;
+        ice) echo '#9fe8ff' ;;
         white) echo '#e8e6d9' ;;
         '#'[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) echo "$v" ;;
         *) echo "$2" ;;
@@ -64,8 +69,8 @@ kernel=$(
 plasma=$(pacman -Q plasma-workspace 2>/dev/null | awk '{print $2}' | cut -d- -f1 || true)
 
 osname=$(osval PRETTY_NAME)
-osver=$(osval VERSION_ID)
-[ -n "$osver" ] || osver=$(osval BUILD_ID)
+qt=$(pacman -Q qt6-base 2>/dev/null | awk '{print $2}' | cut -d- -f1 || true)
+qt=${qt#*:}
 
 tmp=$(mktemp "$theme/.SystemInfo.XXXXXX")
 cat >"$tmp" <<EOF
@@ -84,7 +89,7 @@ QtObject {
     readonly property bool scanlines: $(flag SCANLINES yes)
     readonly property string userName: "$(clean "$username")"
     readonly property string osName: "$(clean "${osname:-Linux}")"
-    readonly property string osVersion: "$(clean "${osver}")"
+    readonly property string qt: "$(clean "${qt}")"
     readonly property string kernel: "$(clean "${kernel}")"
     readonly property string hostname: "$(clean "$(uname -n)")"
     readonly property string plasma: "$(clean "${plasma}")"

@@ -14,7 +14,7 @@ QtObject {
     readonly property bool scanlines: true
     readonly property string userName: ""
     readonly property string osName: "Linux"
-    readonly property string osVersion: ""
+    readonly property string qt: ""
     readonly property string kernel: ""
     readonly property string hostname: ""
     readonly property string plasma: ""
