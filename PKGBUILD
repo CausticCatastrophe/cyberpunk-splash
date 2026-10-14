@@ -34,6 +34,10 @@ package() {
         install -Dm644 "$f" "$dest/contents/splash/fonts/${f##*/}"
     done
 
+    for f in "$src"/theme/contents/previews/*; do
+        install -Dm644 "$f" "$dest/contents/previews/${f##*/}"
+    done
+
     install -Dm755 "$src/cyberpunk-splash-stamp" \
         "$pkgdir/usr/bin/cyberpunk-splash-stamp"
     install -Dm644 "$src/cyberpunk-splash.hook" \

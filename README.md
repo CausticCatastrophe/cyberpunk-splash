@@ -144,4 +144,5 @@ theme/                    the Plasma look-and-feel package
     Splash.qml            the splash
     SystemInfo.qml        defaults, overwritten by the stamp
     fonts/                bundled fonts and their licenses
+  contents/previews/      images shown in System Settings
 ```
