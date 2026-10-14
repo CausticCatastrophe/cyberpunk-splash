@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="Style" type="String">
+      <label>Design used for this screen</label>
+      <default>DataTerminal</default>
+    </entry>
+    <entry name="ShowClock" type="Bool">
+      <label>Show the clock</label>
+      <default>true</default>
+    </entry>
+    <entry name="Clock24h" type="Bool">
+      <label>Use 24-hour time</label>
+      <default>false</default>
+    </entry>
+    <!-- Everything below overrides the system config for this screen only.
+         Empty text, 0 or -1 mean "use the system value". -->
+    <entry name="TitleFont" type="String">
+      <label>Title font (an installed family)</label>
+      <default></default>
+    </entry>
+    <entry name="TaglineFont" type="String">
+      <label>Tagline font (an installed family)</label>
+      <default></default>
+    </entry>
+    <entry name="TitleScale" type="Int">
+      <label>Title size in percent</label>
+      <default>0</default>
+    </entry>
+    <entry name="Title" type="String">
+      <label>Title text</label>
+      <default></default>
+    </entry>
+    <entry name="Tagline" type="String">
+      <label>Tagline text</label>
+      <default></default>
+    </entry>
+    <entry name="BottomInset" type="Int">
+      <label>Raise bottom elements by this percent of the height</label>
+      <default>0</default>
+    </entry>
+    <entry name="TitleY" type="Int">
+      <label>Title position in percent of the height</label>
+      <default>-1</default>
+    </entry>
+    <entry name="Accent" type="String">
+      <label>Accent color</label>
+      <default></default>
+    </entry>
+    <entry name="Secondary" type="String">
+      <label>Secondary color</label>
+      <default></default>
+    </entry>
+    <entry name="LogItems" type="String">
+      <label>Log lines, comma separated</label>
+      <default></default>
+    </entry>
+    <entry name="LogRefresh" type="Int">
+      <label>Seconds between readings</label>
+      <default>0</default>
+    </entry>
+    <entry name="SparkStep" type="Int">
+      <label>Seconds between sparkline points</label>
+      <default>0</default>
+    </entry>
+    <entry name="SparkPoints" type="Int">
+      <label>Points kept per sparkline</label>
+      <default>0</default>
+    </entry>
+  </group>
+
+</kcfg>

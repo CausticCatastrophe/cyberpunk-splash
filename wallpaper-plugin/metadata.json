@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "Plasma/Wallpaper",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "caustic"
+            }
+        ],
+        "Description": "Animated cyberpunk wallpaper matching the Cyberpunk Splash theme",
+        "EnabledByDefault": true,
+        "Icon": "preferences-desktop-wallpaper",
+        "Id": "org.cyberpunk.wallpaper",
+        "License": "GPL-2.0-or-later",
+        "Name": "Cyberpunk Splash (Animated)",
+        "Website": "https://github.com/CausticCatastrophe/cyberpunk-splash"
+    }
+}

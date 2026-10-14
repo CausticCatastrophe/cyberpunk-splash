@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Sample GPU and CPU cost of the desktop shell while a wallpaper runs.
+
+Usage: [GPU_SAMPLE_PIDS=1234,5678] gpu-sample [SECONDS] [LABEL]
+
+With GPU_SAMPLE_PIDS set, samples those process IDs instead of the desktop shell.
+
+Reads, for plasmashell and kwin_wayland:
+  - GPU engine time from /proc/<pid>/fdinfo (amdgpu "drm-engine-*" counters)
+  - CPU time from /proc/<pid>/stat
+  - VRAM from fdinfo
+and the whole-GPU busy percentage from sysfs. Read-only; needs no root.
+"""
+import glob
+import os
+import re
+import sys
+import time
+
+secs = float(sys.argv[1]) if len(sys.argv) > 1 else 15.0
+label = sys.argv[2] if len(sys.argv) > 2 else ""
+procs = ["plasmashell", "kwin_wayland"]
+tick = os.sysconf("SC_CLK_TCK")
+
+
+def pid_of(name):
+    for p in glob.glob("/proc/[0-9]*"):
+        try:
+            if open(p + "/comm").read().strip() == name and \
+               os.stat(p).st_uid == os.getuid():
+                return int(p.split("/")[-1])
+        except OSError:
+            pass
+    return None
+
+
+def gpu_ns(pid):
+    """Sum of drm-engine-* ns over distinct drm clients, plus VRAM KiB."""
+    seen, eng, vram = set(), 0, 0
+    for fd in glob.glob("/proc/%d/fdinfo/*" % pid):
+        try:
+            txt = open(fd).read()
+        except OSError:
+            continue
+        if "drm-driver" not in txt:
+            continue
+        m = re.search(r"drm-client-id:\s*(\d+)", txt)
+        cid = m.group(1) if m else fd
+        if cid in seen:
+            continue
+        seen.add(cid)
+        for k, v in re.findall(r"drm-engine-(?!capacity)(\w+):\s*(\d+) ns", txt):
+            eng += int(v)
+        m = re.search(r"drm-memory-vram:\s*(\d+) KiB", txt)
+        if m:
+            vram += int(m.group(1))
+    return eng, vram
+
+
+def cpu_ticks(pid):
+    f = open("/proc/%d/stat" % pid).read().rsplit(")", 1)[1].split()
+    return int(f[11]) + int(f[12])
+
+
+def gpu_busy():
+    for p in glob.glob("/sys/class/drm/card*/device/gpu_busy_percent"):
+        try:
+            return int(open(p).read())
+        except (OSError, ValueError):
+            pass
+    return None
+
+
+env_pids = os.environ.get("GPU_SAMPLE_PIDS")
+if env_pids:
+    pids = {"pid " + x: int(x) for x in env_pids.split(",")}
+else:
+    pids = {n: pid_of(n) for n in procs}
+for n, p in pids.items():
+    if p is None:
+        sys.exit("%s is not running" % n)
+
+start = {n: (gpu_ns(p)[0], cpu_ticks(p)) for n, p in pids.items()}
+t0 = time.monotonic()
+busy = []
+while time.monotonic() - t0 < secs:
+    b = gpu_busy()
+    if b is not None:
+        busy.append(b)
+    time.sleep(0.25)
+dt = time.monotonic() - t0
+
+print("== %s (%.0fs) ==" % (label or "sample", dt))
+for n, p in pids.items():
+    e1, v = gpu_ns(p)
+    c1 = cpu_ticks(p)
+    e0, c0 = start[n]
+    print("%-13s GPU %5.1f%%   CPU %5.1f%%   VRAM %5.0f MiB" % (
+        n, (e1 - e0) / (dt * 1e9) * 100, (c1 - c0) / tick / dt * 100, v / 1024))
+if busy:
+    print("whole GPU busy: avg %.1f%%  max %d%%  (%d samples)" % (
+        sum(busy) / len(busy), max(busy), len(busy)))

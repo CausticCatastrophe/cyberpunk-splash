@@ -10,7 +10,14 @@ Rectangle {
     property color secondary: "#02d7f2"
     property string title: "CYBERPUNK"
     property string tagline: "OS // neural desktop"
-    property real titleY: 0.12      // title top, as a fraction of the height
+    property string titleFont: ""
+    property real titleScale: 1.0
+    property string taglineFont: ""
+    readonly property string titleFamily:
+        titleFont !== "" && Qt.fontFamilies().indexOf(titleFont) >= 0 ? titleFont : headFont
+    readonly property string taglineFamily:
+        taglineFont !== "" && Qt.fontFamilies().indexOf(taglineFont) >= 0 ? taglineFont : headFont
+    property real titleY: 0.40      // title top, as a fraction of the height
     property bool showTitle: true
     property string headFont: "Rajdhani"
     property string monoFont: "Share Tech Mono"
@@ -47,41 +54,50 @@ Rectangle {
     // title and tagline, kept quiet so the login box stays readable.
     // A secondary-colored ghost sits just behind the title, like the splash's glitch.
     Text {
-        x: -root.u * 0.3
+        x: root.u * 19.7
         y: root.height * root.titleY
-        width: root.width
+        width: root.u * 60
         horizontalAlignment: Text.AlignHCenter
+        fontSizeMode: Text.HorizontalFit    // a wide font shrinks to fit between the side columns
+        minimumPixelSize: 8
         text: root.title
         visible: root.showTitle
         color: root.secondary
         opacity: 0.22
-        font.family: root.headFont
+        font.family: root.titleFamily
         font.weight: Font.Bold
-        font.pixelSize: root.u * 11
-        font.letterSpacing: root.u * 0.7
+        font.pixelSize: root.u * 11 * root.titleScale
+        font.letterSpacing: root.u * 0.7 * root.titleScale
     }
     Text {
+        id: mainTitle
+        x: root.u * 20
         y: root.height * root.titleY
-        width: root.width
+        width: root.u * 60
         horizontalAlignment: Text.AlignHCenter
+        fontSizeMode: Text.HorizontalFit
+        minimumPixelSize: 8
+        // how much it had to shrink (1 = not at all); the tagline follows it up
+        readonly property real fit: fontInfo.pixelSize > 0
+            ? Math.min(1, fontInfo.pixelSize / (root.u * 11 * root.titleScale)) : 1
         text: root.title
         visible: root.showTitle
         color: "#e8e6d9"
         opacity: 0.65
-        font.family: root.headFont
+        font.family: root.titleFamily
         font.weight: Font.Bold
-        font.pixelSize: root.u * 11
-        font.letterSpacing: root.u * 0.7
+        font.pixelSize: root.u * 11 * root.titleScale
+        font.letterSpacing: root.u * 0.7 * root.titleScale
     }
     Text {
-        y: root.height * root.titleY + root.u * 11.6
+        y: root.height * root.titleY + root.u * 11.6 * root.titleScale * mainTitle.fit
         width: root.width
         horizontalAlignment: Text.AlignHCenter
         text: root.tagline.toUpperCase()
         visible: root.showTitle
         color: root.accent
         opacity: 0.75
-        font.family: root.headFont
+        font.family: root.taglineFamily
         font.weight: Font.DemiBold
         font.pixelSize: root.u * 1.4
         font.letterSpacing: root.u * 0.84

@@ -17,6 +17,10 @@ Rectangle {
     FontLoader { id: rajdhaniBold; source: "fonts/Rajdhani-Bold.ttf" }
     FontLoader { id: rajdhaniSemi; source: "fonts/Rajdhani-SemiBold.ttf" }
     FontLoader { id: shareTechMono; source: "fonts/ShareTechMono-Regular.ttf" }
+    // title and tagline alternates; registered so a font setting can name them
+    FontLoader { source: "fonts/Oxanium-ExtraBold.ttf" }
+    FontLoader { source: "fonts/ChakraPetch-Bold.ttf" }
+    FontLoader { source: "fonts/Tektur-Bold.ttf" }
     readonly property string headName: rajdhaniBold.status === FontLoader.Ready ? rajdhaniBold.name : "Noto Sans"
     readonly property string subName: rajdhaniSemi.status === FontLoader.Ready ? rajdhaniSemi.name : "Noto Sans"
     readonly property string monoName: shareTechMono.status === FontLoader.Ready ? shareTechMono.name : "monospace"
@@ -101,10 +105,10 @@ Rectangle {
                 width: root.width
                 horizontalAlignment: Text.AlignHCenter
                 text: sys.title.toUpperCase()
-                font.family: root.headName
+                font.family: sys.titleFont !== "" && Qt.fontFamilies().indexOf(sys.titleFont) >= 0 ? sys.titleFont : root.headName
                 font.weight: Font.Bold
-                font.pixelSize: root.u * 8.5
-                font.letterSpacing: root.u * 0.51
+                font.pixelSize: root.u * 8.5 * sys.titleScale
+                font.letterSpacing: root.u * 0.51 * sys.titleScale
             }
 
             TitleText { color: root.fg }
@@ -158,12 +162,12 @@ Rectangle {
         }
 
         Text {
-            y: root.height * 0.24 + root.u * 5.2
+            y: root.height * 0.24 + root.u * 5.2 * sys.titleScale
             width: root.width
             horizontalAlignment: Text.AlignHCenter
             text: sys.tagline.toUpperCase()
             color: root.fg
-            font.family: root.subName
+            font.family: sys.taglineFont !== "" && Qt.fontFamilies().indexOf(sys.taglineFont) >= 0 ? sys.taglineFont : root.subName
             font.weight: Font.DemiBold
             font.pixelSize: root.u * 1.4
             font.letterSpacing: root.u * 0.84

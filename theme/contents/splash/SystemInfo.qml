@@ -5,6 +5,9 @@ import QtQuick
 QtObject {
     readonly property string title: "CYBERPUNK"
     readonly property string tagline: "OS // neural desktop"
+    readonly property string titleFont: ""
+    readonly property string taglineFont: ""
+    readonly property real titleScale: 1.0
     readonly property string accent: "#fcee09"
     readonly property string secondary: "#02d7f2"
     readonly property bool glitchTitle: true

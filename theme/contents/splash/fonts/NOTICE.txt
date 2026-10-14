@@ -1,0 +1,12 @@
+Bundled fonts, all under the SIL Open Font License 1.1 (see the OFL-*.txt files):
+
+  Rajdhani         Indian Type Foundry
+  Share Tech Mono  Carrois Type Design
+  Oxanium          The Oxanium Project Authors
+  Chakra Petch     The Chakra Petch Project Authors
+  Tektur           The Tektur Project Authors
+
+Oxanium-ExtraBold.ttf and Tektur-Bold.ttf are static instances (weight 800 and
+700) cut from the upstream variable fonts with fontTools, so a fixed weight can
+be loaded directly. No outlines were changed. None of these fonts declares a
+Reserved Font Name, so the original family names are kept.
