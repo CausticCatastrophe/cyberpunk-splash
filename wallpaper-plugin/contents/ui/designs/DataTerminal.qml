@@ -2,7 +2,7 @@ import QtQuick
 import ".."
 
 // The screen is split into three vertical segments, all on the background grid:
-//   left gutter   identity block, then live CPU and GPU panels
+//   left gutter   identity (2 squares), live CPU panel (1), live GPU panel (2)
 //   centre        the clock, title and tagline, kept clear of everything else
 //   right gutter  one terminal: CPU readings, the CPU core map, GPU readings
 // The gutters are four grid cells wide, one cell in from each side. The terminal is a
@@ -30,6 +30,14 @@ Base {
     property bool sparkSmooth: sys.sparkSmooth     // curved line, like the System Monitor widgets
     property bool showGpuPanel: sys.gpuPanel
     property bool showCoreMap: sys.coreMap
+    // opt-in block of AI subscription usage limits above the CPU group (data from local files)
+    property bool showUsage: false
+    property int usageWarnAt: 70
+    property int usageCritAt: 90
+    property int usageStaleMin: 30
+    property color usageNormal: secondary
+    property color usageWarn: accent
+    property color usageCrit: "#ff003c"
     // sensor ids to use instead of the built-in ones (see LiveStats); the wallpaper
     // plugin sets this per screen
     property var sensorIds: ({ cpu: sys.sensorCpu, cputemp: sys.sensorCpuTemp, memused: sys.sensorMemUsed,
@@ -65,6 +73,12 @@ Base {
     readonly property real bottomLine: Math.floor((height - insetPx - (insetPx > 0 ? u * 0.8 : u * 3.5)) / cell) * cell
     readonly property real textInset: u * 0.7                // text column inside the terminal; the core tiles use the same inset
     readonly property real rowH: cell / 2                    // two terminal rows to a grid cell
+
+    Loader {
+        id: usageData
+        active: root.liveStats && root.showUsage
+        source: "UsageData.qml"
+    }
 
     // ---- formatting helpers ----
     function gib(bytes) { return (bytes / 1073741824).toFixed(1); }
@@ -218,70 +232,68 @@ Base {
         return out;
     }
 
-    // a label/value row for the identity block and the GPU panel; the value shrinks to fit
-    component InfoRow: Item {
-        id: info
-        property string label: ""
-        property string value: ""
+    // A panel of label/value rows that fills whole grid cells. The rows are spread evenly
+    // between a little padding at the top and bottom, beside a thin side bar that is inset
+    // by the same padding so neighbouring panels read as separate boxes. Rows without a
+    // value are left out; the value shrinks to fit.
+    component InfoBlock: Item {
+        id: blk
+        property var rows: []                 // [[label, value], ...]
+        property int cells: 1                 // height in grid cells
         property color tint: root.accent
+        readonly property var shown: rows.filter(function (r) { return r[1] !== ""; })
+        readonly property real pad: root.u * 0.45
+        readonly property real step: Math.min((height - 2 * pad) / Math.max(shown.length, 1), root.u * 1.9)
+        readonly property real labelW: root.u * 5.4
         width: root.gutterW
-        height: valueText.implicitHeight
-        visible: value !== ""
-        Text {
-            id: labelText
-            width: root.u * 5.6
-            text: info.label
-            color: info.tint; opacity: 0.6
-            font.family: root.monoFont
-            font.pixelSize: root.u * 0.95
-            font.letterSpacing: root.u * 0.12
-        }
-        Text {
-            id: valueText
-            x: root.u * 5.6
-            width: info.width - root.u * 5.6
-            text: info.value.toUpperCase()
-            color: "#e8e6d9"; opacity: 0.8
-            fontSizeMode: Text.HorizontalFit
-            minimumPixelSize: 7
-            font.family: root.monoFont
-            font.pixelSize: root.u * 0.95
-            font.letterSpacing: root.u * 0.12
+        height: cells * root.cell
+        visible: shown.length > 0
+
+        Rectangle { y: blk.pad; width: 2; height: blk.height - 2 * blk.pad; color: blk.tint; opacity: 0.8 }
+        Repeater {
+            model: blk.shown
+            Item {
+                required property var modelData
+                required property int index
+                x: root.textInset
+                y: (blk.height - blk.shown.length * blk.step) / 2 + index * blk.step
+                width: blk.width - root.textInset
+                height: blk.step
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: blk.labelW
+                    text: parent.modelData[0]
+                    color: blk.tint; opacity: 0.6
+                    font.family: root.monoFont
+                    font.pixelSize: root.u * 0.82
+                    font.letterSpacing: root.u * 0.12
+                }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: blk.labelW
+                    width: parent.width - blk.labelW
+                    text: parent.modelData[1].toUpperCase()
+                    color: "#e8e6d9"; opacity: 0.8
+                    fontSizeMode: Text.HorizontalFit
+                    minimumPixelSize: 7
+                    font.family: root.monoFont
+                    font.pixelSize: root.u * 0.82
+                    font.letterSpacing: root.u * 0.12
+                }
+            }
         }
     }
 
-    // ---- left gutter, top: identity block ----
+    // ---- left gutter: identity (2 squares), CPU panel (1 square), GPU panel (2 squares) ----
     Column {
-        id: idCol
         x: root.marginX
         y: root.cell * 2
-        spacing: root.u * 0.5
-        Repeater {
-            model: [["HOST", sys.hostname], ["OS", sys.osName], ["KERNEL", sys.kernel], ["SESSION", root.session], ["UPTIME", root.identityUptime]]
-            InfoRow { required property var modelData; label: modelData[0]; value: modelData[1] }
+        InfoBlock {
+            cells: 2
+            rows: [["HOST", sys.hostname], ["OS", sys.osName], ["KERNEL", sys.kernel], ["SESSION", root.session], ["UPTIME", root.identityUptime]]
         }
-    }
-
-    // ---- left gutter, under the identity block: CPU panel (accent), then GPU panel (secondary) ----
-    // Each starts on a grid line below the block above it.
-    Column {
-        id: cpuCol
-        x: root.marginX
-        y: Math.ceil((idCol.y + idCol.height + root.u) / root.cell) * root.cell
-        spacing: root.u * 0.5
-        Repeater {
-            model: root.cpuRows
-            InfoRow { required property var modelData; label: modelData[0]; value: modelData[1] }
-        }
-    }
-    Column {
-        x: root.marginX
-        y: Math.ceil((cpuCol.y + cpuCol.height + root.u) / root.cell) * root.cell
-        spacing: root.u * 0.5
-        Repeater {
-            model: root.gpuRows
-            InfoRow { required property var modelData; label: modelData[0]; value: modelData[1]; tint: root.secondary }
-        }
+        InfoBlock { cells: 1; rows: root.cpuRows }
+        InfoBlock { cells: 2; tint: root.secondary; rows: root.gpuRows }
     }
 
     Binding { target: coreMap.item; property: "accent"; value: root.accent; when: coreMap.status === Loader.Ready }
@@ -298,6 +310,101 @@ Base {
         target: coreMap.item; property: "countSensor"
         value: root.sensorIds.corecount !== undefined && root.sensorIds.corecount !== "" ? root.sensorIds.corecount : "cpu/all/coreCount"
         when: coreMap.status === Loader.Ready
+    }
+
+    // ---- right gutter, top: usage limits, two squares tall (opt-in) ----
+    // The first provider: a header, then for up to two limit windows a row with the label,
+    // reset time and percent, and a row of 20 segments worth 5% each. The rows are spread
+    // evenly inside the two squares with padding, like the left-hand panels.
+    readonly property var usageRows: {
+        var P = usageData.item ? usageData.item.providers : [], rows = [];
+        if (P.length === 0) return rows;
+        rows.push({ kind: "head", p: P[0] });
+        for (var j = 0; j < Math.min(2, P[0].windows.length); j++) {
+            rows.push({ kind: "win", p: P[0], w: P[0].windows[j] });
+            rows.push({ kind: "bar", p: P[0], w: P[0].windows[j] });
+        }
+        return rows;
+    }
+    Item {
+        id: usageBlock
+        visible: root.usageRows.length > 0
+        x: root.rightX
+        y: root.cell * 2
+        width: root.gutterW
+        height: root.cell * 2
+        readonly property real pad: root.u * 0.45
+        readonly property real step: Math.min((height - 2 * pad) / Math.max(root.usageRows.length, 1), root.u * 1.9)
+
+        Rectangle { y: usageBlock.pad; width: 2; height: usageBlock.height - 2 * usageBlock.pad; color: root.secondary; opacity: 0.8 }
+
+        Repeater {
+            model: root.usageRows
+            Item {
+                id: ur
+                required property var modelData
+                required property int index
+                readonly property var ud: usageData.item
+                readonly property real nowMs: ud ? ud.now : 0
+                readonly property bool stale: (nowMs - modelData.p.updated * 1000) > root.usageStaleMin * 60000
+                readonly property bool isReset: modelData.w !== undefined && modelData.w.resets_at * 1000 <= nowMs
+                readonly property real pct: modelData.w === undefined || isReset ? 0
+                                            : Math.max(0, Math.min(100, modelData.w.used))
+                readonly property color tint: pct >= root.usageCritAt ? root.usageCrit
+                                              : pct >= root.usageWarnAt ? root.usageWarn : root.usageNormal
+                x: root.textInset
+                y: (usageBlock.height - root.usageRows.length * usageBlock.step) / 2 + index * usageBlock.step
+                width: root.gutterW - 2 * root.textInset     // ends where the terminal graphs end
+                height: usageBlock.step
+                opacity: stale ? 0.55 : 1
+
+                Text {
+                    visible: ur.modelData.kind === "head"
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: ur.modelData.p.provider.toUpperCase() + (ur.stale ? "   AS OF " + ur.ud.clock(ur.modelData.p.updated) : "")
+                    color: root.secondary; opacity: 0.6
+                    font.family: root.monoFont; font.pixelSize: root.u * 0.82; font.letterSpacing: root.u * 0.2
+                }
+                Text {
+                    visible: ur.modelData.kind === "win"
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: ur.modelData.w ? ur.modelData.w.label.toUpperCase() : ""
+                    color: root.secondary
+                    font.family: root.monoFont; font.pixelSize: root.u * 0.82; font.letterSpacing: root.u * 0.1
+                }
+                Text {
+                    visible: ur.modelData.kind === "win"
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: parent.width * 0.42
+                    text: ur.isReset ? "RESET" : ur.ud && ur.modelData.w ? ur.ud.timeLeft(ur.modelData.w.resets_at).toUpperCase() : ""
+                    color: root.secondary; opacity: 0.6
+                    font.family: root.monoFont; font.pixelSize: root.u * 0.78
+                }
+                Text {
+                    visible: ur.modelData.kind === "win"
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                    text: Math.round(ur.pct) + "%"
+                    color: ur.tint
+                    font.family: root.monoFont; font.pixelSize: root.u * 0.82
+                }
+                Row {
+                    visible: ur.modelData.kind === "bar"
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    spacing: 2
+                    Repeater {
+                        model: 20
+                        Rectangle {
+                            required property int index
+                            width: (parent.width - 19 * 2) / 20
+                            height: root.u * 0.45
+                            color: ur.pct > 0 && (index + 1) * 5 <= ur.pct + 2.5 ? ur.tint : Qt.rgba(0.91, 0.9, 0.85, 0.1)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // ---- right gutter, bottom: the terminal ----

@@ -374,3 +374,10 @@ theme/                    the Plasma look-and-feel package
     fonts/                bundled fonts and their licenses
   contents/previews/      images shown in System Settings
 ```
+
+## Optional: AI subscription usage bars
+
+The animated wallpaper can draw your AI subscription's usage limits as bars above the CPU
+readings. It is off by default (per-screen setting "AI subscription usage") and reads small
+local files with no network calls. The optional feed that writes them, for Claude Code, is
+in [`usage/`](usage/README.md); it is not part of this package and is never installed with it.

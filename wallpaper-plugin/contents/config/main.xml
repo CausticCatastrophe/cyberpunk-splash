@@ -134,6 +134,34 @@
       <label>Show the GPU panel</label>
       <default>true</default>
     </entry>
+    <entry name="ShowUsage" type="Bool">
+      <label>Show AI subscription usage bars (needs a provider writing local files)</label>
+      <default>false</default>
+    </entry>
+    <entry name="UsageWarnAt" type="Int">
+      <label>Usage bars change to the warning color at this percent</label>
+      <default>70</default>
+    </entry>
+    <entry name="UsageCritAt" type="Int">
+      <label>Usage bars change to the critical color at this percent</label>
+      <default>90</default>
+    </entry>
+    <entry name="UsageStaleMin" type="Int">
+      <label>Usage readings older than this many minutes are dimmed</label>
+      <default>30</default>
+    </entry>
+    <entry name="UsageColorNormal" type="String">
+      <label>Usage bar color below the warning level (empty uses the secondary color)</label>
+      <default></default>
+    </entry>
+    <entry name="UsageColorWarn" type="String">
+      <label>Usage bar color from the warning level (empty uses the accent color)</label>
+      <default></default>
+    </entry>
+    <entry name="UsageColorCrit" type="String">
+      <label>Usage bar color from the critical level</label>
+      <default>#ff003c</default>
+    </entry>
     <entry name="ShowCoreMap" type="Bool">
       <label>Show the CPU core map</label>
       <default>true</default>

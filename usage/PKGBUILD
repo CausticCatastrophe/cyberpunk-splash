@@ -1,0 +1,25 @@
+# Maintainer: caustic
+# Optional add-on. It is built from this folder only, never by the main package.
+pkgname=ai-subscription-usage
+pkgver=r0.0
+pkgrel=1
+pkgdesc='Writes AI subscription usage limits to local files for the Cyberpunk Splash wallpaper'
+arch=('any')
+url='https://github.com/CausticCatastrophe/cyberpunk-splash'
+license=('GPL-2.0-or-later')
+depends=('jq')
+makedepends=('git')
+install=ai-subscription-usage.install
+source=("cyberpunk-splash::git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "$srcdir/cyberpunk-splash"
+    printf 'r%s.%s' "$(git rev-list --count HEAD)" \
+        "$(git rev-parse --short HEAD)"
+}
+
+package() {
+    install -Dm755 "$srcdir/cyberpunk-splash/usage/ai-usage-claude-statusline" \
+        "$pkgdir/usr/bin/ai-usage-claude-statusline"
+}

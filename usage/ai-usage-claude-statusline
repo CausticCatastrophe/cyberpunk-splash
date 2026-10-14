@@ -1,0 +1,33 @@
+#!/bin/sh
+# Claude Code status line command that records your subscription limits for the
+# AI Subscription Usage widget. Claude Code passes a JSON document on stdin; when it
+# contains rate_limits (Pro and Max plans only), the session (5-hour) and weekly
+# (7-day) percentages go to $XDG_STATE_HOME/ai-usage/claude.json. Nothing is sent
+# anywhere and no credentials are read.
+#
+# With no arguments it prints a short status line. To keep an existing status line,
+# pass its command as arguments; it is run with the same input afterwards:
+#   ai-usage-claude-statusline my-status-command --my-flag
+
+dir=${XDG_STATE_HOME:-$HOME/.local/state}/ai-usage
+input=$(cat)
+
+out=$(printf '%s' "$input" | jq -c --argjson now "$(date +%s)" '
+    select(.rate_limits != null) |
+    { provider: "Claude", updated: $now, windows: [
+        (.rate_limits.five_hour // empty
+            | { label: "Session", used: .used_percentage, resets_at: .resets_at }),
+        (.rate_limits.seven_day // empty
+            | { label: "Weekly", used: .used_percentage, resets_at: .resets_at })
+    ] } | select(.windows | length > 0)' 2>/dev/null)
+
+if [ -n "$out" ]; then
+    mkdir -p "$dir" && tmp="$dir/.claude.$$" &&
+        printf '%s\n' "$out" > "$tmp" && mv "$tmp" "$dir/claude.json"
+fi
+
+if [ $# -gt 0 ]; then
+    printf '%s' "$input" | "$@"
+else
+    printf '%s' "$out" | jq -r '[.windows[] | "\(.label) \(.used | floor)%"] | join("  ")' 2>/dev/null
+fi

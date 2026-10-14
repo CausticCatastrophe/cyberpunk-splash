@@ -53,6 +53,13 @@ Kirigami.FormLayout {
     property string cfg_SensorCoreCount
     property bool cfg_ShowGpuPanel
     property bool cfg_ShowCoreMap
+    property bool cfg_ShowUsage
+    property int cfg_UsageWarnAt
+    property int cfg_UsageCritAt
+    property int cfg_UsageStaleMin
+    property string cfg_UsageColorNormal
+    property string cfg_UsageColorWarn
+    property string cfg_UsageColorCrit
     property int cfg_GridOpacity
     property int cfg_LogRefresh
     property int cfg_SparkStep
@@ -345,6 +352,55 @@ Kirigami.FormLayout {
         }
     }
     // ---- sensors ----
+    Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: "AI subscription usage (optional)" }
+    QQC2.CheckBox {
+        text: "Show usage bars above the CPU readings"
+        checked: root.cfg_ShowUsage
+        onToggled: root.cfg_ShowUsage = checked
+    }
+    QQC2.Label {
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+        wrapMode: Text.WordWrap
+        opacity: 0.7
+        text: "Reads small local files from ~/.local/state/ai-usage (see usage/README.md in the repo). Nothing is shown until a provider writes one."
+    }
+    QQC2.SpinBox {
+        Kirigami.FormData.label: "Warning color from (%):"
+        from: 1; to: 99
+        value: root.cfg_UsageWarnAt
+        onValueModified: root.cfg_UsageWarnAt = value
+    }
+    QQC2.SpinBox {
+        Kirigami.FormData.label: "Critical color from (%):"
+        from: 1; to: 100
+        value: root.cfg_UsageCritAt
+        onValueModified: root.cfg_UsageCritAt = value
+    }
+    QQC2.SpinBox {
+        Kirigami.FormData.label: "Dim readings older than (minutes):"
+        from: 1; to: 1440
+        value: root.cfg_UsageStaleMin
+        onValueModified: root.cfg_UsageStaleMin = value
+    }
+    QQC2.TextField {
+        Kirigami.FormData.label: "Normal color:"
+        placeholderText: "empty = secondary color"
+        text: root.cfg_UsageColorNormal
+        onEditingFinished: root.cfg_UsageColorNormal = text
+    }
+    QQC2.TextField {
+        Kirigami.FormData.label: "Warning color:"
+        placeholderText: "empty = accent color"
+        text: root.cfg_UsageColorWarn
+        onEditingFinished: root.cfg_UsageColorWarn = text
+    }
+    QQC2.TextField {
+        Kirigami.FormData.label: "Critical color:"
+        placeholderText: "#ff003c"
+        text: root.cfg_UsageColorCrit
+        onEditingFinished: root.cfg_UsageColorCrit = text
+    }
+
     Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: "Sensors" }
     QQC2.Label {
         text: "Choose which sensor feeds each reading. Click a field to browse the sensors on this machine. Leave it empty to use the default."

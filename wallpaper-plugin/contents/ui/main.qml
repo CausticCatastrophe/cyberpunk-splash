@@ -87,6 +87,13 @@ WallpaperItem {
     }
     Binding { target: design.item; property: "showGpuPanel"; value: cfg.ShowGpuPanel && sys.gpuPanel; when: root.hasLog }
     Binding { target: design.item; property: "showCoreMap"; value: cfg.ShowCoreMap && sys.coreMap; when: root.hasLog }
+    Binding { target: design.item; property: "showUsage"; value: cfg.ShowUsage; when: root.hasLog }
+    Binding { target: design.item; property: "usageWarnAt"; value: cfg.UsageWarnAt; when: root.hasLog }
+    Binding { target: design.item; property: "usageCritAt"; value: cfg.UsageCritAt; when: root.hasLog }
+    Binding { target: design.item; property: "usageStaleMin"; value: cfg.UsageStaleMin; when: root.hasLog }
+    Binding { target: design.item; property: "usageNormal"; value: cfg.UsageColorNormal !== "" ? cfg.UsageColorNormal : root.effSecondary; when: root.hasLog }
+    Binding { target: design.item; property: "usageWarn"; value: cfg.UsageColorWarn !== "" ? cfg.UsageColorWarn : root.effAccent; when: root.hasLog }
+    Binding { target: design.item; property: "usageCrit"; value: cfg.UsageColorCrit !== "" ? cfg.UsageColorCrit : "#ff003c"; when: root.hasLog }
     Binding { target: design.item; property: "sensorIds"; value: root.effSensorIds; when: root.hasLog }
     Binding { target: design.item; property: "logItems"; value: root.effLogItems; when: root.hasLog }
     Binding { target: design.item; property: "logRefresh"; value: root.effLogRefresh; when: root.hasLog }
