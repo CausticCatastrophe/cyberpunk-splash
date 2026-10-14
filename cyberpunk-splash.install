@@ -1,0 +1,14 @@
+post_install() {
+    cat <<'MSG'
+==> Cyberpunk Splash is installed. Next steps:
+    1. sudoedit /etc/cyberpunk-splash.conf      (title, colors, optional)
+    2. sudo cyberpunk-splash-stamp               (renders the splash and login still)
+    3. System Settings > Login Screen            (pick "Cyberpunk Splash (Animated)" or the still)
+    4. System Settings > Screen Locking          (appearance for the lock screen)
+    5. Desktop wallpaper: right-click the desktop > Configure Desktop > Wallpaper type
+MSG
+}
+
+post_upgrade() {
+    echo "==> Cyberpunk Splash updated. Run: sudo cyberpunk-splash-stamp"
+}

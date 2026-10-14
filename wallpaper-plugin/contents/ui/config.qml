@@ -13,6 +13,12 @@ Kirigami.FormLayout {
 
     property alias formLayout: root
 
+    // the login settings page assigns these for every plugin; unused here
+    property string cfg_PreviewImage
+    property string cfg_PreviewImageDefault
+    property string cfg_DarkLightScheduleState
+    property string cfg_DarkLightScheduleStateDefault
+
     property string cfg_Style
     property string cfg_StyleDefault
     property bool cfg_ShowClock

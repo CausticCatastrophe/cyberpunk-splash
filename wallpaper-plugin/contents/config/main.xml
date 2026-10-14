@@ -10,6 +10,16 @@
       <label>Design used for this screen</label>
       <default>DataTerminal</default>
     </entry>
+    <!-- the login settings page reads and writes these two for every wallpaper plugin;
+         they are unused here but must exist for its options page to load -->
+    <entry name="PreviewImage" type="String">
+      <label>Wallpaper preview image path</label>
+      <default></default>
+    </entry>
+    <entry name="DarkLightScheduleState" type="String">
+      <label>Saved dark light schedule state</label>
+      <default></default>
+    </entry>
     <entry name="ShowClock" type="Bool">
       <label>Show the clock</label>
       <default>true</default>

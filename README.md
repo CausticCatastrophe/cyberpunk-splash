@@ -154,14 +154,34 @@ writes it to `/var/lib/plasmalogin/wallpapers/cyberpunk-splash.png`. Set
 `LOGIN_WALLPAPER=no` to skip it. Rendering is offscreen and needs no display;
 if it fails, the stamp still succeeds.
 
-One-time setup: point the login screen at that file. In System Settings open
-Login Screen and choose the wallpaper image, or set it in
-`/etc/plasmalogin.conf`:
+### Choosing the login wallpaper
+
+Open System Settings, Login Screen, and pick the wallpaper. There are two choices:
+
+- **Cyberpunk Splash (Animated)** is the live plugin, with the same layout and settings
+  as on the desktop. Its options (design, colors, title, log items) appear on the same
+  page. It shows live readings and runs on the greeter's own session, so the
+  `plasmalogin` user needs nothing beyond the installed package.
+- **Image** with `/var/lib/plasmalogin/wallpapers/cyberpunk-splash.png` is the still
+  the stamp renders. It is static and never runs a sensor, so it is the safe fallback.
+
+Without the settings page, set it in `/etc/plasmalogin.conf`. Note that the key is
+`WallpaperPluginId` here, not the `WallpaperPlugin` the lock screen uses:
 
 ```
+[Greeter]
+WallpaperPluginId=org.cyberpunk.wallpaper
+
+[Greeter][Wallpaper][org.cyberpunk.wallpaper][General]
+Accent=#fcee09
+Secondary=#02d7f2
+ShowClock=false
+
 [Greeter][Wallpaper][org.kde.image][General]
 Image=file:///var/lib/plasmalogin/wallpapers/cyberpunk-splash.png
 ```
+
+The lock screen is separate: System Settings, Screen Locking, Appearance.
 
 The login manager draws its own clock, user picker and password box over the
 wallpaper, and their layout is fixed. Two settings keep the wallpaper out of
@@ -252,10 +272,12 @@ lines with `LOG_ITEMS` (`cpu`, `cputemp`, `mem`, `gpu`, `gputemp`, `vram`,
 entirely in its group color, accent for CPU and secondary for GPU.
 
 **Layout.** The screen is split into three vertical segments, all on the background
-grid. The middle (22% to 78% of the width) is reserved for the clock, title and
+grid. The middle (25% to 75% of the width) is reserved for the clock, title and
 tagline, and nothing else enters it; a wide title font shrinks to fit. The left gutter
-has the identity block (host, OS, kernel, session, uptime) with a live GPU panel in the
-secondary color under it (model, clock, power, fan, junction temperature). The right
+has the identity block (host, OS, kernel, session, uptime), then a live CPU panel
+(model, average clock, hottest core) and a live GPU panel in the secondary color (model,
+clock, power, fan, junction temperature) under it. The gutters sit two grid cells in
+from each edge. The right
 gutter, four grid cells wide and one cell in from the edge, has one terminal.
 The terminal is dense and left-justified, with short labels, compact values such as
 `5.9/46.9G`, a small graph beside each value, and rows half a grid cell tall. From the

@@ -9,6 +9,7 @@ license=('GPL-2.0-or-later')
 depends=('plasma-workspace' 'pacman' 'qt6-declarative')
 makedepends=('git')
 backup=('etc/cyberpunk-splash.conf')
+install=cyberpunk-splash.install
 source=("$pkgname::git+$url.git")
 sha256sums=('SKIP')
 
