@@ -37,6 +37,7 @@ hue() { # hue KEY DEFAULT_HEX -> #rrggbb (named color, hex, or the default)
     case "$v" in
         yellow) echo '#fcee09' ;;
         cyan) echo '#02d7f2' ;;
+        blue) echo '#3d8bff' ;;
         red) echo '#ff2a4b' ;;
         magenta) echo '#ff4fd8' ;;
         green) echo '#39ff88' ;;

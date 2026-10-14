@@ -8,6 +8,19 @@ System details (OS, kernel, hostname, Plasma version) and all settings are
 written into the theme by a small stamp script, so the splash itself never
 reads files at runtime.
 
+## Screenshots
+
+Default (`ACCENT=yellow`, `SECONDARY=cyan`):
+
+![Yellow accent](docs/screenshots/cyberpunk-yellow.png)
+
+`ACCENT=blue`, `SECONDARY=magenta`:
+
+![Blue accent](docs/screenshots/cyberpunk-blue.png)
+
+Stills captured at stage 5 with sample system values. The glitch, tear and
+roll effects are animated and only show while it runs.
+
 ## Install
 
 ```
@@ -44,7 +57,7 @@ sudo cyberpunk-splash-stamp
 | `SCANLINES` | yes / no | Scanlines over the whole splash |
 | `KERNEL_PKGBASE` | e.g. `linux-cachyos`, or empty | Which installed kernel to show. Empty shows the newest |
 
-Color names: yellow, cyan, red, magenta, green, orange, violet, white.
+Color names: yellow, cyan, blue, red, magenta, green, orange, violet, white.
 Invalid colors fall back to the defaults. Values are reduced to a safe
 character set before they are written into QML.
 
