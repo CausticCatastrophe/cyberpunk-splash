@@ -69,8 +69,8 @@ Rectangle {
         height: root.u * 13
         y: root.height * root.titleY
         component TitleText: Text {
-            x: root.u * 22
-            width: root.u * 56                  // the title may use the middle 56% of the width, leaving room beside the gutters
+            x: root.u * 25
+            width: root.u * 50                  // the title may use the middle 50% of the width, leaving room beside the gutters
             horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.HorizontalFit    // a wide font shrinks to fit, never overlaps the side columns
             minimumPixelSize: 8
@@ -83,7 +83,7 @@ Rectangle {
             font.pixelSize: root.u * 11 * root.titleScale
             font.letterSpacing: root.u * 0.7 * root.titleScale
         }
-        TitleText { x: root.u * 21.7; color: root.secondary; opacity: 0.22 }
+        TitleText { x: root.u * 24.7; color: root.secondary; opacity: 0.22 }
         TitleText { id: mainTitle; color: "#e8e6d9"; opacity: 0.65 }
         Text {
             y: root.u * 11.6 * root.titleScale * mainTitle.fit

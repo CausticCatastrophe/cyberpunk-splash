@@ -31,12 +31,10 @@ Item {
     }
     readonly property int cols: Math.max(1, Math.min(columns, count))
     readonly property int rowCount: count > 0 ? Math.ceil(count / cols) : 0
-    readonly property real inset: u * 0.35           // keeps neighbouring tiles apart
+    property real inset: u * 0.7                     // space inside each grid cell; also the terminal text column
 
-    readonly property real gapX: u * 0.7
-    readonly property real pitchX: (contentW + gapX) / cols
     // a half-cell caption row, then one whole cell per line of tiles
-    width: contentX + contentW
+    width: cols * cell
     height: captionH + rowCount * cell
     visible: count > 0
 
@@ -44,7 +42,7 @@ Item {
 
     Text {
         id: caption
-        x: map.contentX
+        x: map.inset
         y: (map.captionH - height) / 2
         text: "CORES  " + map.count
         color: map.accent
@@ -60,9 +58,9 @@ Item {
             id: cell
             required property int index
             readonly property real load: Math.max(0, Math.min(1, map.num(sensor.value) / 100))
-            x: map.contentX + (index % map.cols) * map.pitchX
+            x: (index % map.cols) * map.cell + map.inset
             y: map.captionH + Math.floor(index / map.cols) * map.cell + map.inset
-            width: map.pitchX - map.gapX
+            width: map.cell - 2 * map.inset
             height: map.cell - 2 * map.inset
 
             Sensors.Sensor {

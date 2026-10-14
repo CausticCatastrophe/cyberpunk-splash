@@ -56,13 +56,14 @@ Base {
     // ---- the grid and the segments ----
     // The background grid has square cells 4% of the screen width wide.
     readonly property real cell: u * 4
-    readonly property real marginX: cell
+    readonly property real marginX: cell * 2
     readonly property real gutterW: cell * 4                 // each side gutter is four cells wide
     readonly property real rightX: width - marginX - gutterW // left edge of the right gutter
     // The lower blocks end on the last grid line above the bottom margin. When a bottom
     // margin is set (a taskbar), that panel already gives the breathing room, so only a
     // little extra is kept; otherwise 3.5 units.
     readonly property real bottomLine: Math.floor((height - insetPx - (insetPx > 0 ? u * 0.8 : u * 3.5)) / cell) * cell
+    readonly property real textInset: u * 0.7                // text column inside the terminal; the core tiles use the same inset
     readonly property real rowH: cell / 2                    // two terminal rows to a grid cell
 
     // ---- formatting helpers ----
@@ -289,8 +290,9 @@ Base {
     Binding { target: coreMap.item; property: "cell"; value: root.cell; when: coreMap.status === Loader.Ready }
     Binding { target: coreMap.item; property: "columns"; value: 4; when: coreMap.status === Loader.Ready }
     // the same text column as the headers and readings: one inset from the bar, out to the graphs' right edge
-    Binding { target: coreMap.item; property: "contentX"; value: root.u * 1.2; when: coreMap.status === Loader.Ready }
-    Binding { target: coreMap.item; property: "contentW"; value: root.gutterW - root.u * 1.2; when: coreMap.status === Loader.Ready }
+    Binding { target: coreMap.item; property: "inset"; value: root.textInset; when: coreMap.status === Loader.Ready }
+    Binding { target: coreMap.item; property: "contentX"; value: root.textInset; when: coreMap.status === Loader.Ready }
+    Binding { target: coreMap.item; property: "contentW"; value: root.gutterW - root.textInset; when: coreMap.status === Loader.Ready }
     Binding { target: coreMap.item; property: "interval"; value: root.logRefresh * 1000; when: coreMap.status === Loader.Ready }
     Binding {
         target: coreMap.item; property: "countSensor"
@@ -335,9 +337,9 @@ Base {
                 id: row
                 required property var modelData
                 readonly property color tint: modelData.c === "s" ? root.secondary : root.accent
-                x: root.u * 1.2
+                x: root.textInset
                 y: modelData.at * root.rowH
-                width: root.gutterW - root.u * 1.2
+                width: root.gutterW - root.textInset
                 height: root.rowH
 
                 Text {
@@ -356,7 +358,7 @@ Base {
                 Canvas {
                     id: spark
                     visible: row.modelData.kind === "line" && row.modelData.key !== ""
-                    x: root.u * 9.2
+                    x: root.gutterW - 2 * root.textInset - width
                     y: (row.height - height) / 2
                     width: root.u * 5.6
                     height: root.u * 1.2

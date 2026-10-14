@@ -55,9 +55,9 @@ Rectangle {
     // title and tagline, kept quiet so the login box stays readable.
     // A secondary-colored ghost sits just behind the title, like the splash's glitch.
     Text {
-        x: root.u * 21.7
+        x: root.u * 24.7
         y: root.height * root.titleY
-        width: root.u * 56
+        width: root.u * 50
         horizontalAlignment: Text.AlignHCenter
         fontSizeMode: Text.HorizontalFit    // a wide font shrinks to fit between the side columns
         minimumPixelSize: 8
@@ -72,9 +72,9 @@ Rectangle {
     }
     Text {
         id: mainTitle
-        x: root.u * 22
+        x: root.u * 25
         y: root.height * root.titleY
-        width: root.u * 56
+        width: root.u * 50
         horizontalAlignment: Text.AlignHCenter
         fontSizeMode: Text.HorizontalFit
         minimumPixelSize: 8
