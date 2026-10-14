@@ -42,7 +42,21 @@ Rectangle {
         }
     }
 
-    // title and tagline, kept quiet so the login box stays readable
+    // title and tagline, kept quiet so the login box stays readable.
+    // A secondary-colored ghost sits just behind the title, like the splash's glitch.
+    Text {
+        x: -root.u * 0.3
+        y: root.height * 0.12
+        width: root.width
+        horizontalAlignment: Text.AlignHCenter
+        text: root.title
+        color: root.secondary
+        opacity: 0.22
+        font.family: root.headFont
+        font.weight: Font.Bold
+        font.pixelSize: root.u * 11
+        font.letterSpacing: root.u * 0.7
+    }
     Text {
         y: root.height * 0.12
         width: root.width
