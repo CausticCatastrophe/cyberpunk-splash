@@ -107,6 +107,27 @@ edits and write new defaults to `cyberpunk-splash.conf.pacnew`.
 A label is hidden when its value is empty, so an unstamped theme never shows
 placeholder text.
 
+## Login screen wallpaper
+
+Every time the stamp runs it also renders a matching wallpaper for the Plasma
+Login Manager from your `TITLE`, `TAGLINE`, `ACCENT` and `SECONDARY`, and
+writes it to `/var/lib/plasmalogin/wallpapers/cyberpunk-splash.png`. Set
+`LOGIN_WALLPAPER=no` to skip it. Rendering is offscreen and needs no display;
+if it fails, the stamp still succeeds.
+
+One-time setup: point the login screen at that file. In System Settings open
+Login Screen and choose the wallpaper image, or set it in
+`/etc/plasmalogin.conf`:
+
+```
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file:///var/lib/plasmalogin/wallpapers/cyberpunk-splash.png
+```
+
+After that, any config change plus `sudo cyberpunk-splash-stamp` updates the
+login screen on its next appearance. To render a wallpaper by hand without
+installing, run `wallpaper/render OUT.png [ACCENT] [SECONDARY]` from the repo.
+
 ## Preview
 
 ```
@@ -135,9 +156,10 @@ names under `/usr/lib/modules`, the hostname and the versions of the
 
 ```
 PKGBUILD                  package definition
-cyberpunk-splash-stamp    writes SystemInfo.qml from the config and system
+cyberpunk-splash-stamp    writes SystemInfo.qml and the login wallpaper
 cyberpunk-splash.hook     pacman hook that triggers the stamp
 cyberpunk-splash.conf     default config (installed to /etc)
+wallpaper/                login wallpaper design and render script
 theme/                    the Plasma look-and-feel package
   metadata.json
   contents/splash/

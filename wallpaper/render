@@ -1,0 +1,60 @@
+#!/bin/bash
+# Render the login wallpaper offscreen to a PNG. No display needed.
+# Usage: render OUT.png [ACCENT_HEX] [SECONDARY_HEX] [WIDTH] [HEIGHT]
+# Environment (all optional):
+#   CYBERPUNK_TITLE, CYBERPUNK_TAGLINE   text on the wallpaper
+#   CYBERPUNK_WALLPAPER_QML              path to Wallpaper.qml
+#   CYBERPUNK_FONTS_DIR                  directory holding the bundled fonts
+set -eu
+
+here=$(cd "$(dirname "$0")" && pwd)
+qml=${CYBERPUNK_WALLPAPER_QML:-$here/Wallpaper.qml}
+fonts=${CYBERPUNK_FONTS_DIR:-$here/../theme/contents/splash/fonts}
+fonts=$(cd "$fonts" && pwd)
+title=${CYBERPUNK_TITLE:-CYBERPUNK}
+tagline=${CYBERPUNK_TAGLINE:-OS // neural desktop}
+out=$(realpath -m "$1")
+accent=${2:-#fcee09}
+secondary=${3:-#02d7f2}
+w=${4:-2560}
+h=${5:-1440}
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+chmod 700 "$work"
+
+cat >"$work/render.qml" <<EOF
+import QtQuick
+import QtQuick.Window
+
+Window {
+    width: $w; height: $h; visible: true; color: "black"
+
+    FontLoader { source: "file://$fonts/Rajdhani-Bold.ttf" }
+    FontLoader { source: "file://$fonts/Rajdhani-SemiBold.ttf" }
+    FontLoader { source: "file://$fonts/ShareTechMono-Regular.ttf" }
+
+    Loader {
+        id: ld
+        anchors.fill: parent
+        source: "file://$qml"
+        onLoaded: {
+            item.accent = "$accent"
+            item.secondary = "$secondary"
+            item.title = "$title"
+            item.tagline = "$tagline"
+        }
+    }
+    Timer {
+        interval: 1200; running: true
+        onTriggered: ld.grabToImage(function (r) {
+            r.saveToFile("$out")
+            Qt.quit()
+        })
+    }
+}
+EOF
+
+XDG_RUNTIME_DIR=$work QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+    qml6 "$work/render.qml" >/dev/null 2>&1 || true
+[ -s "$out" ]

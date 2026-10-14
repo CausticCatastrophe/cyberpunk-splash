@@ -6,7 +6,7 @@ pkgdesc='Cyberpunk-style Plasma splash with stamped system info'
 arch=('any')
 url='https://github.com/CausticCatastrophe/cyberpunk-splash'
 license=('GPL-2.0-or-later')
-depends=('plasma-workspace' 'pacman')
+depends=('plasma-workspace' 'pacman' 'qt6-declarative')
 makedepends=('git')
 backup=('etc/cyberpunk-splash.conf')
 source=("$pkgname::git+$url.git")
@@ -37,6 +37,11 @@ package() {
     for f in "$src"/theme/contents/previews/*; do
         install -Dm644 "$f" "$dest/contents/previews/${f##*/}"
     done
+
+    install -Dm644 "$src/wallpaper/Wallpaper.qml" \
+        "$pkgdir/usr/share/cyberpunk-splash/Wallpaper.qml"
+    install -Dm755 "$src/wallpaper/render" \
+        "$pkgdir/usr/lib/cyberpunk-splash/render-wallpaper"
 
     install -Dm755 "$src/cyberpunk-splash-stamp" \
         "$pkgdir/usr/bin/cyberpunk-splash-stamp"
