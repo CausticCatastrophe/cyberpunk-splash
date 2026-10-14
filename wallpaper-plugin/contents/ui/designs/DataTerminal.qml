@@ -25,6 +25,9 @@ Base {
     property int logRefresh: sys.logRefresh
     property int sparkStep: sys.sparkStep
     property int sparkPoints: sys.sparkPoints
+    property string sparkScale: sys.sparkScale     // "auto" fits the range to the data, "fixed" uses the full range
+    property string caseSensor: sys.caseSensor     // sensor id for the case temperature line
+    property bool sparkSmooth: sys.sparkSmooth     // curved line, like the System Monitor widgets
 
     property bool cursorOn: true
     property int hot: 0      // highlighted hex row
@@ -39,6 +42,12 @@ Base {
         id: live
         active: root.liveStats
         source: "LiveStats.qml"
+    }
+    Binding {
+        target: live.item
+        property: "caseSensorId"
+        value: root.caseSensor
+        when: live.status === Loader.Ready
     }
     Binding {
         target: live.item
@@ -64,8 +73,9 @@ Base {
 
     // One log line. c is the color group ("a" accent, "s" secondary); key and f
     // feed the sparkline (key is empty for lines without one).
-    function line(label, value, c, key, f) {
-        return { t: pad(label, value), c: c, key: key, f: f, y: 0 };
+    // span is the smallest part of the 0..1 range that auto-range will zoom in to.
+    function line(label, value, c, key, f, span) {
+        return { t: pad(label, value), c: c, key: key, f: f, span: span, y: 0 };
     }
 
     // The line for an item name, or null when it has no value to show.
@@ -73,23 +83,25 @@ Base {
         var L = live.item;
         switch (name) {
         case "cpu":
-            return L && isFinite(L.cpu) ? line("cpu", pct(L.cpu), "a", "cpu", clamp(L.cpu / 100)) : null;
+            return L && isFinite(L.cpu) ? line("cpu", pct(L.cpu), "a", "cpu", clamp(L.cpu / 100), 0.10) : null;
         case "cputemp":
-            return L && isFinite(L.temp) && L.temp > 0 ? line("cpu temp", deg(L.temp), "a", "cputemp", clamp((L.temp - 25) / 70)) : null;
+            return L && isFinite(L.temp) && L.temp > 0 ? line("cpu temp", deg(L.temp), "a", "cputemp", clamp((L.temp - 25) / 70), 0.06) : null;
         case "mem":
-            return L && L.memTotal > 0 ? line("memory", usedOf(L.memUsed, L.memTotal), "a", "mem", clamp(L.memUsed / L.memTotal)) : null;
+            return L && L.memTotal > 0 ? line("memory", usedOf(L.memUsed, L.memTotal), "a", "mem", clamp(L.memUsed / L.memTotal), 0.02) : null;
         case "gpu":
-            return L && isFinite(L.gpu) ? line("gpu", pct(L.gpu), "s", "gpu", clamp(L.gpu / 100)) : null;
+            return L && isFinite(L.gpu) ? line("gpu", pct(L.gpu), "s", "gpu", clamp(L.gpu / 100), 0.10) : null;
         case "gputemp":
-            return L && isFinite(L.gpuTemp) && L.gpuTemp > 0 ? line("gpu temp", deg(L.gpuTemp), "s", "gputemp", clamp((L.gpuTemp - 25) / 70)) : null;
+            return L && isFinite(L.gpuTemp) && L.gpuTemp > 0 ? line("gpu temp", deg(L.gpuTemp), "s", "gputemp", clamp((L.gpuTemp - 25) / 70), 0.06) : null;
         case "vram":
-            return L && L.vramTotal > 0 ? line("vram", usedOf(L.vramUsed, L.vramTotal), "s", "vram", clamp(L.vramUsed / L.vramTotal)) : null;
-        case "uptime":  return L && L.uptime > 0 ? line("uptime", uptimeText(L.uptime), "a", "", 0) : null;
-        case "os":      return sys.osName !== "" ? line("os", sys.osName, "a", "", 0) : null;
-        case "kernel":  return sys.kernel !== "" ? line("kernel", sys.kernel, "a", "", 0) : null;
-        case "plasma":  return sys.plasma !== "" ? line("plasma", sys.plasma, "a", "", 0) : null;
-        case "qt":      return sys.qt !== "" ? line("qt", sys.qt, "a", "", 0) : null;
-        case "host":    return sys.hostname !== "" ? line("host", sys.hostname, "a", "", 0) : null;
+            return L && L.vramTotal > 0 ? line("vram", usedOf(L.vramUsed, L.vramTotal), "s", "vram", clamp(L.vramUsed / L.vramTotal), 0.02) : null;
+        case "case":
+            return L && isFinite(L.caseTemp) && L.caseTemp > 0 ? line("case temp", deg(L.caseTemp), "a", "casetemp", clamp((L.caseTemp - 15) / 50), 0.06) : null;
+        case "uptime":  return L && L.uptime > 0 ? line("uptime", uptimeText(L.uptime), "a", "", 0, 0) : null;
+        case "os":      return sys.osName !== "" ? line("os", sys.osName, "a", "", 0, 0) : null;
+        case "kernel":  return sys.kernel !== "" ? line("kernel", sys.kernel, "a", "", 0, 0) : null;
+        case "plasma":  return sys.plasma !== "" ? line("plasma", sys.plasma, "a", "", 0, 0) : null;
+        case "qt":      return sys.qt !== "" ? line("qt", sys.qt, "a", "", 0, 0) : null;
+        case "host":    return sys.hostname !== "" ? line("host", sys.hostname, "a", "", 0, 0) : null;
         }
         return null;
     }
@@ -282,24 +294,44 @@ Base {
                         c.beginPath(); c.moveTo(0, height - 0.5); c.lineTo(width, height - 0.5); c.stroke();
                         var a = root.hist[row.modelData.key] || [];
                         if (a.length < 2) return;
-                        var step = width / (root.histLen - 1), x0 = width - (a.length - 1) * step;
-                        c.beginPath();
-                        for (var i = 0; i < a.length; i++) {
-                            var x = x0 + i * step, y = height - 1.5 - a[i] * (height - 3);
-                            if (i === 0) c.moveTo(x, y); else c.lineTo(x, y);
+
+                        // vertical range: the whole 0..1 span, or zoomed to the data (never
+                        // tighter than the line's minimum span, so noise is not blown up)
+                        var lo = 0, hi = 1;
+                        if (root.sparkScale === "auto") {
+                            lo = Math.min.apply(null, a);
+                            hi = Math.max.apply(null, a);
+                            var span = row.modelData.span > 0 ? row.modelData.span : 0.05;
+                            if (hi - lo < span) { var mid = (hi + lo) / 2; lo = mid - span / 2; hi = mid + span / 2; }
+                            if (lo < 0) { hi -= lo; lo = 0; }
+                            if (hi > 1) { lo = Math.max(0, lo - (hi - 1)); hi = 1; }
                         }
+                        var rng = Math.max(hi - lo, 0.0001);
+                        var step = width / (root.histLen - 1), x0 = width - (a.length - 1) * step;
+                        function yOf(v) { return height - 1.5 - ((v - lo) / rng) * (height - 3); }
+
+                        // the line, straight or smoothed through the midpoints
+                        function trace() {
+                            c.beginPath();
+                            var px = x0, py = yOf(a[0]);
+                            c.moveTo(px, py);
+                            for (var i = 1; i < a.length; i++) {
+                                var x = x0 + i * step, y = yOf(a[i]);
+                                if (root.sparkSmooth) c.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+                                else c.lineTo(x, y);
+                                px = x; py = y;
+                            }
+                            c.lineTo(px, py);
+                        }
+                        trace();
                         c.lineTo(width, height - 0.5);
                         c.lineTo(x0, height - 0.5);
                         c.closePath();
-                        c.globalAlpha = 0.14;
+                        c.globalAlpha = 0.10;      // the same light fill as the System Monitor charts
                         c.fill();
+                        trace();
                         c.globalAlpha = 0.95;
                         c.lineWidth = 1.5;
-                        c.beginPath();
-                        for (var j = 0; j < a.length; j++) {
-                            var xx = x0 + j * step, yy = height - 1.5 - a[j] * (height - 3);
-                            if (j === 0) c.moveTo(xx, yy); else c.lineTo(xx, yy);
-                        }
                         c.stroke();
                     }
                 }

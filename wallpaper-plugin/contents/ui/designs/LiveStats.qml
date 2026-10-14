@@ -9,6 +9,7 @@ Item {
     id: stats
 
     property int interval: 2000     // milliseconds between updates
+    property string caseSensorId: ""   // motherboard "case" temperature sensor; empty = none
 
     // a sensor has no value until its first reading; NaN means "not yet"
     function num(v) { return v === undefined || v === null ? NaN : Number(v); }
@@ -22,6 +23,7 @@ Item {
     readonly property real vramUsed: num(vramUsed_.value)
     readonly property real vramTotal: num(vramTotal_.value)
     readonly property real uptime: num(uptime_.value)
+    readonly property real caseTemp: num(caseSensor.value)
 
     Sensors.Sensor { id: cpuUsage;   sensorId: "cpu/all/usage";                 updateRateLimit: stats.interval }
     Sensors.Sensor { id: cpuTemp;    sensorId: "cpu/all/averageTemperature";    updateRateLimit: stats.interval }
@@ -31,5 +33,11 @@ Item {
     Sensors.Sensor { id: gpuTemp_;   sensorId: "gpu/gpu0/temperature";          updateRateLimit: stats.interval }
     Sensors.Sensor { id: vramUsed_;  sensorId: "gpu/gpu0/usedVram";             updateRateLimit: stats.interval }
     Sensors.Sensor { id: vramTotal_; sensorId: "gpu/gpu0/totalVram";            updateRateLimit: stats.interval }
+    Sensors.Sensor {
+        id: caseSensor
+        sensorId: stats.caseSensorId
+        enabled: stats.caseSensorId !== ""
+        updateRateLimit: stats.interval
+    }
     Sensors.Sensor { id: uptime_;    sensorId: "os/system/uptime";              updateRateLimit: 30000 }
 }

@@ -56,6 +56,10 @@
       <label>Secondary color</label>
       <default></default>
     </entry>
+    <entry name="CaseSensor" type="String">
+      <label>Sensor id for the case temperature line</label>
+      <default></default>
+    </entry>
     <entry name="LogItems" type="String">
       <label>Log lines, comma separated</label>
       <default></default>
@@ -67,6 +71,10 @@
     <entry name="SparkStep" type="Int">
       <label>Seconds between sparkline points</label>
       <default>0</default>
+    </entry>
+    <entry name="SparkScale" type="String">
+      <label>Graph range: auto or fixed (empty uses the system value)</label>
+      <default></default>
     </entry>
     <entry name="SparkPoints" type="Int">
       <label>Points kept per sparkline</label>

@@ -117,26 +117,31 @@ if [ -d "$plugdir/contents/ui" ]; then
     # which readings the log shows, in order; only known names get through.
     # cpu, cputemp and mem are drawn in the accent color; gpu, gputemp and vram in
     # the secondary color. The older name "temp" means cputemp.
-    defitems='cpu,cputemp,mem,gpu,gputemp,vram,uptime'
+    defitems='cpu,cputemp,mem,gpu,gputemp,vram,case,uptime'
     items=""
     IFS=, read -ra arr <<<"$(cfg LOG_ITEMS "$defitems" | tr -cd 'a-z,')"
     for it in "${arr[@]}"; do
         [ "$it" = temp ] && it=cputemp
         case "$it" in
-            cpu|cputemp|mem|gpu|gputemp|vram|uptime|os|kernel|plasma|qt|host)
+            cpu|cputemp|mem|gpu|gputemp|vram|case|uptime|os|kernel|plasma|qt|host)
                 case ",$items," in *",$it,"*) ;; *) items="${items:+$items,}$it" ;; esac ;;
         esac
     done
     [ -n "$items" ] || items=$defitems
-    refresh=$(cfg LOG_REFRESH 2)
-    case "$refresh" in ''|*[!0-9]*) refresh=2 ;; esac
-    [ "$refresh" -ge 1 ] && [ "$refresh" -le 60 ] || refresh=2
+    refresh=$(cfg LOG_REFRESH 1)
+    case "$refresh" in ''|*[!0-9]*) refresh=1 ;; esac
+    [ "$refresh" -ge 1 ] && [ "$refresh" -le 60 ] || refresh=1
     sstep=$(cfg SPARK_STEP "$refresh")
     case "$sstep" in ''|*[!0-9]*) sstep=$refresh ;; esac
     [ "$sstep" -ge 1 ] && [ "$sstep" -le 300 ] || sstep=$refresh
-    spoints=$(cfg SPARK_POINTS 40)
-    case "$spoints" in ''|*[!0-9]*) spoints=40 ;; esac
-    [ "$spoints" -ge 10 ] && [ "$spoints" -le 120 ] || spoints=40
+    spoints=$(cfg SPARK_POINTS 60)
+    case "$spoints" in ''|*[!0-9]*) spoints=60 ;; esac
+    [ "$spoints" -ge 10 ] && [ "$spoints" -le 120 ] || spoints=60
+    # sensor id for the case temperature line (letters, digits and / _ . - only)
+    casesensor=$(cfg CASE_SENSOR '' | tr -cd 'A-Za-z0-9/_.-' | cut -c1-80)
+    # graph vertical range: auto fits it to the data, fixed uses the whole range
+    sscale=$(cfg SPARK_SCALE auto | tr 'A-Z' 'a-z')
+    case "$sscale" in auto|fixed) ;; *) sscale=auto ;; esac
     ptmp=$(mktemp "$plugdir/contents/ui/.SystemInfo.XXXXXX" 2>/dev/null || true)
     if [ -n "$ptmp" ]; then
         cat >"$ptmp" <<PEOF
@@ -167,6 +172,9 @@ QtObject {
     readonly property int logRefresh: $refresh
     readonly property int sparkStep: $sstep
     readonly property int sparkPoints: $spoints
+    readonly property string sparkScale: "$sscale"
+    readonly property string caseSensor: "$casesensor"
+    readonly property bool sparkSmooth: $(flag SPARK_SMOOTH yes)
 }
 PEOF
         chmod 644 "$ptmp"

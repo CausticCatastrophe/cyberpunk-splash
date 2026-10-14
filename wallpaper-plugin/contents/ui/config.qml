@@ -28,9 +28,11 @@ Kirigami.FormLayout {
     property string cfg_Accent
     property string cfg_Secondary
     property string cfg_LogItems
+    property string cfg_CaseSensor
     property int cfg_LogRefresh
     property int cfg_SparkStep
     property int cfg_SparkPoints
+    property string cfg_SparkScale
 
     // value is the design's file name; the label says what it costs to run
     readonly property var styles: [
@@ -48,6 +50,7 @@ Kirigami.FormLayout {
         { value: "gpu",     text: "GPU usage" },
         { value: "gputemp", text: "GPU temperature" },
         { value: "vram",    text: "Video memory" },
+        { value: "case",    text: "Case temperature" },
         { value: "uptime",  text: "Uptime" },
         { value: "os",      text: "OS" },
         { value: "kernel",  text: "Kernel" },
@@ -55,7 +58,7 @@ Kirigami.FormLayout {
         { value: "qt",      text: "Qt version" },
         { value: "host",    text: "Host name" }
     ]
-    readonly property string defaultLog: "cpu,cputemp,mem,gpu,gputemp,vram,uptime"
+    readonly property string defaultLog: "cpu,cputemp,mem,gpu,gputemp,vram,case,uptime"
 
     // The fonts that ship with this theme come first, then every installed family.
     // Entries whose value starts with "__" are headings and cannot be picked.
@@ -81,27 +84,72 @@ Kirigami.FormLayout {
         }
         cfg_LogItems = out.length > 0 ? out.join(",") : defaultLog;
     }
-    // a font picker: bundled fonts on top, headings that cannot be picked
-    component FontBox: QQC2.ComboBox {
-        id: fb
+    // A font picker: a button showing the current font that opens a searchable list.
+    // Bundled fonts are on top; entries starting with "__" are headings.
+    component FontPicker: QQC2.Button {
+        id: btn
         property string current: ""
         signal picked(string value)
-        textRole: "text"
-        valueRole: "value"
-        model: root.fontChoices
-        delegate: QQC2.ItemDelegate {
-            required property var model
-            required property int index
-            width: ListView.view ? ListView.view.width : implicitWidth
-            text: model.text
-            enabled: model.value.indexOf("__") !== 0
-            font.bold: !enabled
-            highlighted: fb.highlightedIndex === index
+
+        text: current === "" ? "Default (Rajdhani)" : current
+        icon.name: "font-select-symbolic"
+
+        // the choices that match the search, headings only when not searching
+        function matching(q) {
+            var out = [], needle = q.toLowerCase();
+            for (var i = 0; i < root.fontChoices.length; i++) {
+                var c = root.fontChoices[i];
+                if (needle === "" || (c.value.indexOf("__") !== 0 && c.text.toLowerCase().indexOf(needle) >= 0))
+                    out.push(c);
+            }
+            return out;
         }
-        onActivated: picked(currentValue)
-        function sync() { currentIndex = Math.max(0, indexOfValue(current)); }
-        onCurrentChanged: sync()
-        Component.onCompleted: sync()
+
+        onClicked: { search.text = ""; pop.open(); search.forceActiveFocus(); }
+
+        QQC2.Popup {
+            id: pop
+            parent: QQC2.Overlay.overlay
+            anchors.centerIn: QQC2.Overlay.overlay
+            width: Kirigami.Units.gridUnit * 22
+            height: Math.min(QQC2.Overlay.overlay ? QQC2.Overlay.overlay.height * 0.8 : 500, Kirigami.Units.gridUnit * 28)
+            modal: true
+            focus: true
+            padding: Kirigami.Units.smallSpacing
+            closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+
+            // open with the current font in view
+            onOpened: {
+                for (var i = 0; i < list.model.length; i++)
+                    if (list.model[i].value === btn.current) { list.positionViewAtIndex(i, ListView.Center); break; }
+            }
+
+            contentItem: ColumnLayout {
+                spacing: Kirigami.Units.smallSpacing
+                QQC2.TextField {
+                    id: search
+                    Layout.fillWidth: true
+                    placeholderText: "Search fonts"
+                }
+                ListView {
+                    id: list
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    model: btn.matching(search.text)
+                    QQC2.ScrollBar.vertical: QQC2.ScrollBar {}
+                    delegate: QQC2.ItemDelegate {
+                        required property var modelData
+                        width: ListView.view.width
+                        text: modelData.text
+                        enabled: modelData.value.indexOf("__") !== 0
+                        font.bold: !enabled
+                        highlighted: enabled && modelData.value === btn.current
+                        onClicked: { btn.picked(modelData.value); pop.close(); }
+                    }
+                }
+            }
+        }
     }
     // a spin box where the lowest value reads "Default"
     component DefaultSpin: QQC2.SpinBox {
@@ -121,12 +169,12 @@ Kirigami.FormLayout {
         onActivated: root.cfg_Style = currentValue
         Component.onCompleted: currentIndex = Math.max(0, indexOfValue(root.cfg_Style))
     }
-    FontBox {
+    FontPicker {
         Kirigami.FormData.label: "Title font:"
         current: root.cfg_TitleFont
         onPicked: value => root.cfg_TitleFont = value
     }
-    FontBox {
+    FontPicker {
         Kirigami.FormData.label: "Tagline font:"
         current: root.cfg_TaglineFont
         onPicked: value => root.cfg_TaglineFont = value
@@ -238,6 +286,18 @@ Kirigami.FormLayout {
             }
         }
     }
+    QQC2.TextField {
+        Kirigami.FormData.label: "Case sensor:"
+        placeholderText: "e.g. lmsensors/nct6798-isa-0290/temp1"
+        text: root.cfg_CaseSensor
+        onTextEdited: root.cfg_CaseSensor = text
+    }
+    QQC2.Label {
+        text: "The sensor id of your case temperature, the one your System Monitor widget labels Case. List sensors with: kstatsviewer --list"
+        opacity: 0.7
+        wrapMode: Text.WordWrap
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+    }
     DefaultSpin {
         Kirigami.FormData.label: "Read every:"
         from: 0; to: 60
@@ -258,14 +318,28 @@ Kirigami.FormLayout {
         value: root.cfg_SparkPoints
         onValueModified: root.cfg_SparkPoints = value
     }
+    QQC2.ComboBox {
+        id: scaleBox
+        Kirigami.FormData.label: "Graph range:"
+        textRole: "text"
+        valueRole: "value"
+        model: [
+            { value: "",      text: "Default" },
+            { value: "auto",  text: "Auto: zoom to the data" },
+            { value: "fixed", text: "Fixed: full range" }
+        ]
+        onActivated: root.cfg_SparkScale = currentValue
+        Component.onCompleted: currentIndex = Math.max(0, indexOfValue(root.cfg_SparkScale))
+    }
     QQC2.Label {
         Kirigami.FormData.label: "Graph covers:"
-        readonly property int step: root.cfg_SparkStep > 0 ? root.cfg_SparkStep : (root.cfg_LogRefresh > 0 ? root.cfg_LogRefresh : 2)
-        readonly property int pts: root.cfg_SparkPoints > 0 ? root.cfg_SparkPoints : 40
+        readonly property int step: root.cfg_SparkStep > 0 ? root.cfg_SparkStep : (root.cfg_LogRefresh > 0 ? root.cfg_LogRefresh : 1)
+        readonly property int pts: root.cfg_SparkPoints > 0 ? root.cfg_SparkPoints : 60
         text: step * pts + " seconds (with the default settings, if left at Default)"
         opacity: 0.7
         wrapMode: Text.WordWrap
     }
 
+    onCfg_SparkScaleChanged: scaleBox.currentIndex = Math.max(0, scaleBox.indexOfValue(cfg_SparkScale))
     onCfg_StyleChanged: styleBox.currentIndex = Math.max(0, styleBox.indexOfValue(cfg_Style))
 }

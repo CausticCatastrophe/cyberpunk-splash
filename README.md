@@ -249,10 +249,21 @@ lines with `LOG_ITEMS` (`cpu`, `cputemp`, `mem`, `gpu`, `gputemp`, `vram`,
 `uptime`, `os`, `kernel`, `plasma`, `qt`, `host`). Each line is drawn entirely in
 its group color, accent for CPU and secondary for GPU.
 
-Polling and graph granularity are tunable. `LOG_REFRESH` is how often readings
-are polled, in seconds. `SPARK_STEP` is the seconds between sparkline points and
-`SPARK_POINTS` how many points each graph keeps, so a graph covers
-`SPARK_STEP` x `SPARK_POINTS` seconds (the defaults show the last 80 seconds).
+Graphs follow the System Monitor charts by default: one point per second, 60
+points (the last minute), a smooth line, a light fill and a vertical range that
+zooms to the data so small changes show. All of it is tunable. `LOG_REFRESH` is
+how often readings are polled, in seconds. `SPARK_STEP` is the seconds between
+points and `SPARK_POINTS` how many each graph keeps, so a graph covers
+`SPARK_STEP` x `SPARK_POINTS` seconds. `SPARK_SCALE` is `auto` (zoom to the data)
+or `fixed` (the full range), and `SPARK_SMOOTH` turns the curve on or off.
+
+**Case temperature.** The `case` line shows your motherboard's case or system
+temperature, above uptime. Sensor ids are specific to each board, so set
+`CASE_SENSOR` to yours (or paste it into **Case sensor** on the wallpaper
+settings page). Find it with `kstatsviewer --list | grep -i -E 'systin|temp'`,
+using the one your System Monitor widget labels Case, for example
+`lmsensors/nct6798-isa-0290/temp1`. With no sensor set, the line is hidden.
+
 Slower polling is cheaper. Only plain numbers are read:
 nothing identifying such as user names, addresses, processes or files is shown.
 A login or lock still cannot update, so it shows only the static facts. If the

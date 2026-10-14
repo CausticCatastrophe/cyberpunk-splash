@@ -24,8 +24,11 @@ QtObject {
     readonly property string plasma: ""
     readonly property string qt: ""
     readonly property string hostname: ""
-    readonly property string logItems: "cpu,cputemp,mem,gpu,gputemp,vram,uptime"
-    readonly property int logRefresh: 2     // seconds between sensor readings
-    readonly property int sparkStep: 2      // seconds between sparkline points
-    readonly property int sparkPoints: 40   // points kept per sparkline
+    readonly property string logItems: "cpu,cputemp,mem,gpu,gputemp,vram,case,uptime"
+    readonly property int logRefresh: 1     // seconds between sensor readings
+    readonly property int sparkStep: 1      // seconds between sparkline points
+    readonly property int sparkPoints: 60   // points kept per sparkline (60 s at 1 s, like the widgets)
+    readonly property string sparkScale: "auto"
+    readonly property string caseSensor: ""   // sensor id of the case temperature, empty = none
+    readonly property bool sparkSmooth: true
 }

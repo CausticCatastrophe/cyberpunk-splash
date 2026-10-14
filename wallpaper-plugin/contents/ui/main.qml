@@ -14,10 +14,12 @@ WallpaperItem {
     FontLoader { id: fBold; source: root.fontDir + "Rajdhani-Bold.ttf" }
     FontLoader { id: fMono; source: root.fontDir + "ShareTechMono-Regular.ttf" }
     FontLoader { source: root.fontDir + "Rajdhani-SemiBold.ttf" }
-    // title and tagline alternates; registered so a font setting can name them
-    FontLoader { source: root.fontDir + "Oxanium-ExtraBold.ttf" }
-    FontLoader { source: root.fontDir + "ChakraPetch-Bold.ttf" }
-    FontLoader { source: root.fontDir + "Tektur-Bold.ttf" }
+    // Title and tagline alternates, shipped inside the plugin itself so they work
+    // even when the splash theme on the system is older. Registered so a font
+    // setting can name them.
+    FontLoader { source: Qt.resolvedUrl("../fonts/Oxanium-ExtraBold.ttf") }
+    FontLoader { source: Qt.resolvedUrl("../fonts/ChakraPetch-Bold.ttf") }
+    FontLoader { source: Qt.resolvedUrl("../fonts/Tektur-Bold.ttf") }
 
     Loader {
         id: design
@@ -36,9 +38,11 @@ WallpaperItem {
     readonly property string effTitleFont: cfg.TitleFont !== "" ? cfg.TitleFont : sys.titleFont
     readonly property string effTaglineFont: cfg.TaglineFont !== "" ? cfg.TaglineFont : sys.taglineFont
     readonly property real effTitleScale: cfg.TitleScale > 0 ? cfg.TitleScale / 100 : sys.titleScale
+    readonly property string effCaseSensor: cfg.CaseSensor !== "" ? cfg.CaseSensor : sys.caseSensor
     readonly property string effLogItems: cfg.LogItems !== "" ? cfg.LogItems : sys.logItems
     readonly property int effLogRefresh: cfg.LogRefresh > 0 ? cfg.LogRefresh : sys.logRefresh
     readonly property int effSparkStep: cfg.SparkStep > 0 ? cfg.SparkStep : (cfg.LogRefresh > 0 ? cfg.LogRefresh : sys.sparkStep)
+    readonly property string effSparkScale: cfg.SparkScale !== "" ? cfg.SparkScale : sys.sparkScale
     readonly property int effSparkPoints: cfg.SparkPoints > 0 ? cfg.SparkPoints : sys.sparkPoints
 
     // Classic builds everything from SystemInfo itself; the others (built on Base,
@@ -67,8 +71,10 @@ WallpaperItem {
         value: fMono.status === FontLoader.Ready ? fMono.name : "monospace"
         when: root.takesProps
     }
+    Binding { target: design.item; property: "caseSensor"; value: root.effCaseSensor; when: root.hasLog }
     Binding { target: design.item; property: "logItems"; value: root.effLogItems; when: root.hasLog }
     Binding { target: design.item; property: "logRefresh"; value: root.effLogRefresh; when: root.hasLog }
     Binding { target: design.item; property: "sparkStep"; value: root.effSparkStep; when: root.hasLog }
     Binding { target: design.item; property: "sparkPoints"; value: root.effSparkPoints; when: root.hasLog }
+    Binding { target: design.item; property: "sparkScale"; value: root.effSparkScale; when: root.hasLog }
 }
