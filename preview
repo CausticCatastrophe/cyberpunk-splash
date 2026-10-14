@@ -1,0 +1,18 @@
+#!/bin/bash
+# Preview the splash using the project's own cyberpunk-splash.conf.
+# Copies the theme to a scratch dir, stamps it, and opens a test window.
+# Nothing is installed and no root is needed.
+set -eu
+
+here=$(cd "$(dirname "$0")" && pwd)
+dir=${TMPDIR:-/tmp}/cyberpunk-splash-preview
+
+rm -rf "$dir"
+mkdir -p "$dir"
+cp -r "$here/theme/." "$dir/"
+
+CYBERPUNK_SPLASH_DIR="$dir/contents/splash" \
+CYBERPUNK_SPLASH_CONF="$here/cyberpunk-splash.conf" \
+    "$here/cyberpunk-splash-stamp"
+
+exec ksplashqml --test --window "$dir"
