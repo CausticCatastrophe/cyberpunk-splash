@@ -80,19 +80,11 @@ Invalid colors fall back to the defaults. Values are reduced to a safe
 character set before they are written into QML.
 
 The copy of `cyberpunk-splash.conf` in this repo is only the package default.
-Editing it changes the next build and `./preview`, not an installed system.
+Editing it changes the next build, not an installed system.
 `/etc/cyberpunk-splash.conf` is a pacman backup file, so upgrades keep your
 edits and write new defaults to `cyberpunk-splash.conf.pacnew`.
 
-## Test without installing
-
-```
-./preview
-```
-
-Copies the theme to a scratch directory, stamps it using this repo's
-`cyberpunk-splash.conf`, and opens a test window. No root needed. To preview
-the installed copy instead:
+## Preview
 
 ```
 ksplashqml --test --window /usr/share/plasma/look-and-feel/org.cyberpunk.splash
@@ -122,7 +114,6 @@ PKGBUILD                  package definition
 cyberpunk-splash-stamp    writes SystemInfo.qml from the config and system
 cyberpunk-splash.hook     pacman hook that triggers the stamp
 cyberpunk-splash.conf     default config (installed to /etc)
-preview                   local preview without installing
 theme/                    the Plasma look-and-feel package
   metadata.json
   contents/splash/
