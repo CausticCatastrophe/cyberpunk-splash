@@ -19,6 +19,7 @@ QtObject {
     readonly property string osName: "Linux"
     readonly property string qt: ""
     readonly property string kernel: ""
+    readonly property string cpuModel: ""
     readonly property string hostname: ""
     readonly property string plasma: ""
 }

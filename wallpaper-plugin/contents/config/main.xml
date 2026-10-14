@@ -40,6 +40,10 @@
       <label>Tagline text</label>
       <default></default>
     </entry>
+    <entry name="GridOpacity" type="Int">
+      <label>Grid line strength in percent (-1 uses the system value, 0 turns it off)</label>
+      <default>-1</default>
+    </entry>
     <entry name="BottomInset" type="Int">
       <label>Raise bottom elements by this percent of the height</label>
       <default>0</default>
@@ -55,6 +59,74 @@
     <entry name="Secondary" type="String">
       <label>Secondary color</label>
       <default></default>
+    </entry>
+    <entry name="SensorCpu" type="String">
+      <label>Sensor id for CPU usage (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorCpuTemp" type="String">
+      <label>Sensor id for CPU temperature (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorMemUsed" type="String">
+      <label>Sensor id for Memory used (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorMemTotal" type="String">
+      <label>Sensor id for Memory total (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpu" type="String">
+      <label>Sensor id for GPU usage (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpuTemp" type="String">
+      <label>Sensor id for GPU temperature (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorVramUsed" type="String">
+      <label>Sensor id for Video memory used (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorVramTotal" type="String">
+      <label>Sensor id for Video memory total (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorUptime" type="String">
+      <label>Sensor id for Uptime (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpuName" type="String">
+      <label>Sensor id for GPU name (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpuClock" type="String">
+      <label>Sensor id for GPU clock (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpuPower" type="String">
+      <label>Sensor id for GPU power (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpuFan" type="String">
+      <label>Sensor id for GPU fan (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorGpuJunction" type="String">
+      <label>Sensor id for GPU junction temperature (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="SensorCoreCount" type="String">
+      <label>Sensor id for CPU core count (empty uses the default)</label>
+      <default></default>
+    </entry>
+    <entry name="ShowGpuPanel" type="Bool">
+      <label>Show the GPU panel</label>
+      <default>true</default>
+    </entry>
+    <entry name="ShowCoreMap" type="Bool">
+      <label>Show the CPU core map</label>
+      <default>true</default>
     </entry>
     <entry name="CaseSensor" type="String">
       <label>Sensor id for the case temperature line</label>

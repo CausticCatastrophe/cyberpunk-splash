@@ -12,12 +12,13 @@ Rectangle {
     property string tagline: "OS // neural desktop"
     property string titleFont: ""
     property real titleScale: 1.0
+    property real gridOpacity: 0.14
     property string taglineFont: ""
     readonly property string titleFamily:
         titleFont !== "" && Qt.fontFamilies().indexOf(titleFont) >= 0 ? titleFont : headFont
     readonly property string taglineFamily:
         taglineFont !== "" && Qt.fontFamilies().indexOf(taglineFont) >= 0 ? taglineFont : headFont
-    property real titleY: 0.40      // title top, as a fraction of the height
+    property real titleY: 0.35      // title top, as a fraction of the height
     property bool showTitle: true
     property string headFont: "Rajdhani"
     property string monoFont: "Share Tech Mono"
@@ -31,7 +32,7 @@ Rectangle {
             var c = getContext("2d");
             c.reset();
             c.strokeStyle = root.accent;
-            c.globalAlpha = 0.11;
+            c.globalAlpha = root.gridOpacity;
             c.lineWidth = 1;
             var s = root.u * 4;
             for (var x = 0; x < width; x += s) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, height); c.stroke(); }
@@ -54,9 +55,9 @@ Rectangle {
     // title and tagline, kept quiet so the login box stays readable.
     // A secondary-colored ghost sits just behind the title, like the splash's glitch.
     Text {
-        x: root.u * 19.7
+        x: root.u * 21.7
         y: root.height * root.titleY
-        width: root.u * 60
+        width: root.u * 56
         horizontalAlignment: Text.AlignHCenter
         fontSizeMode: Text.HorizontalFit    // a wide font shrinks to fit between the side columns
         minimumPixelSize: 8
@@ -71,9 +72,9 @@ Rectangle {
     }
     Text {
         id: mainTitle
-        x: root.u * 20
+        x: root.u * 22
         y: root.height * root.titleY
-        width: root.u * 60
+        width: root.u * 56
         horizontalAlignment: Text.AlignHCenter
         fontSizeMode: Text.HorizontalFit
         minimumPixelSize: 8

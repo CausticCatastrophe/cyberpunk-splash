@@ -56,6 +56,10 @@ hue() { # hue KEY DEFAULT_HEX -> #rrggbb (named color, hex, or the default)
 
 username=$(clean "$(cfg USER_NAME '')")
 # optional title font: an installed family name, plus a size scale in percent
+gridpct=$(cfg GRID_OPACITY 14)
+case "$gridpct" in ''|*[!0-9]*) gridpct=14 ;; esac
+[ "$gridpct" -le 40 ] || gridpct=40
+gridopacity=$(awk "BEGIN { printf \"%.2f\", $gridpct / 100 }")
 titlefont=$(cfg TITLE_FONT '' | tr -cd 'A-Za-z0-9 _.-' | cut -c1-40)
 taglinefont=$(cfg TAGLINE_FONT '' | tr -cd 'A-Za-z0-9 _.-' | cut -c1-40)
 tscale=$(cfg TITLE_FONT_SCALE 100)
@@ -73,6 +77,7 @@ kernel=$(
         v=${d%/}; echo "${v##*/}"
     done | sort -V | tail -n1
 )
+cpumodel=$(sed -n 's/^model name[^:]*: *//p' /proc/cpuinfo 2>/dev/null | head -n1 | sed -e 's/([A-Za-z]*)//g' -e 's/ CPU//' -e 's/ @.*//' -e 's/^[0-9]*[a-z]* Gen //' -e 's/^Intel //' -e 's/^AMD //' -e 's/  */ /g' || true)
 plasma=$(pacman -Q plasma-workspace 2>/dev/null | awk '{print $2}' | cut -d- -f1 || true)
 
 osname=$(osval PRETTY_NAME)
@@ -101,6 +106,7 @@ QtObject {
     readonly property string osName: "$(clean "${osname:-Linux}")"
     readonly property string qt: "$(clean "${qt}")"
     readonly property string kernel: "$(clean "${kernel}")"
+    readonly property string cpuModel: "$(clean "${cpumodel}")"
     readonly property string hostname: "$(clean "$(uname -n)")"
     readonly property string plasma: "$(clean "${plasma}")"
 }
@@ -111,13 +117,13 @@ mv -f "$tmp" "$theme/SystemInfo.qml"
 # Settings for the animated wallpaper plugin, when it is installed.
 plugdir=${CYBERPUNK_PLUGIN_DIR:-/usr/share/plasma/wallpapers/org.cyberpunk.wallpaper}
 if [ -d "$plugdir/contents/ui" ]; then
-    pty=$(cfg LOGIN_TITLE_Y 40)
-    case "$pty" in ''|*[!0-9]*) pty=40 ;; esac
-    [ "$pty" -le 80 ] || pty=40
+    pty=$(cfg LOGIN_TITLE_Y 35)
+    case "$pty" in ''|*[!0-9]*) pty=35 ;; esac
+    [ "$pty" -le 80 ] || pty=35
     # which readings the log shows, in order; only known names get through.
     # cpu, cputemp and mem are drawn in the accent color; gpu, gputemp and vram in
     # the secondary color. The older name "temp" means cputemp.
-    defitems='cpu,cputemp,mem,gpu,gputemp,vram,case,uptime'
+    defitems='cpu,cputemp,mem,gpu,gputemp,vram,case'
     items=""
     IFS=, read -ra arr <<<"$(cfg LOG_ITEMS "$defitems" | tr -cd 'a-z,')"
     for it in "${arr[@]}"; do
@@ -138,7 +144,8 @@ if [ -d "$plugdir/contents/ui" ]; then
     case "$spoints" in ''|*[!0-9]*) spoints=60 ;; esac
     [ "$spoints" -ge 10 ] && [ "$spoints" -le 120 ] || spoints=60
     # sensor id for the case temperature line (letters, digits and / _ . - only)
-    casesensor=$(cfg CASE_SENSOR '' | tr -cd 'A-Za-z0-9/_.-' | cut -c1-80)
+    sid() { cfg "$1" '' | tr -cd 'A-Za-z0-9/_.-' | cut -c1-80; }   # a sensor id: letters, digits and / _ . - only
+    casesensor=$(sid CASE_SENSOR)
     # graph vertical range: auto fits it to the data, fixed uses the whole range
     sscale=$(cfg SPARK_SCALE auto | tr 'A-Z' 'a-z')
     case "$sscale" in auto|fixed) ;; *) sscale=auto ;; esac
@@ -158,6 +165,7 @@ QtObject {
     readonly property string secondary: "$(hue SECONDARY '#02d7f2')"
     readonly property real titleY: $(awk "BEGIN { printf \"%.2f\", $pty / 100 }")
     readonly property bool showTitle: $(flag LOGIN_TITLE yes)
+    readonly property real gridOpacity: $gridopacity
     readonly property bool glitchTitle: $(flag GLITCH_TITLE yes)
     readonly property bool crtTear: $(flag CRT_TEAR yes)
     readonly property bool crtRoll: $(flag CRT_ROLL yes)
@@ -165,6 +173,7 @@ QtObject {
     readonly property bool scanlines: $(flag SCANLINES yes)
     readonly property string osName: "$(clean "${osname:-Linux}")"
     readonly property string kernel: "$(clean "${kernel}")"
+    readonly property string cpuModel: "$(clean "${cpumodel}")"
     readonly property string plasma: "$(clean "${plasma}")"
     readonly property string qt: "$(clean "${qt}")"
     readonly property string hostname: "$(clean "$(uname -n)")"
@@ -174,6 +183,23 @@ QtObject {
     readonly property int sparkPoints: $spoints
     readonly property string sparkScale: "$sscale"
     readonly property string caseSensor: "$casesensor"
+    readonly property string sensorCpu: "$(sid SENSOR_CPU)"
+    readonly property string sensorCpuTemp: "$(sid SENSOR_CPU_TEMP)"
+    readonly property string sensorMemUsed: "$(sid SENSOR_MEM_USED)"
+    readonly property string sensorMemTotal: "$(sid SENSOR_MEM_TOTAL)"
+    readonly property string sensorGpu: "$(sid SENSOR_GPU)"
+    readonly property string sensorGpuTemp: "$(sid SENSOR_GPU_TEMP)"
+    readonly property string sensorVramUsed: "$(sid SENSOR_VRAM_USED)"
+    readonly property string sensorVramTotal: "$(sid SENSOR_VRAM_TOTAL)"
+    readonly property string sensorUptime: "$(sid SENSOR_UPTIME)"
+    readonly property string sensorGpuName: "$(sid SENSOR_GPU_NAME)"
+    readonly property string sensorGpuClock: "$(sid SENSOR_GPU_CLOCK)"
+    readonly property string sensorGpuPower: "$(sid SENSOR_GPU_POWER)"
+    readonly property string sensorGpuFan: "$(sid SENSOR_GPU_FAN)"
+    readonly property string sensorGpuJunction: "$(sid SENSOR_GPU_JUNCTION)"
+    readonly property string sensorCoreCount: "$(sid SENSOR_CORE_COUNT)"
+    readonly property bool gpuPanel: $(flag GPU_PANEL yes)
+    readonly property bool coreMap: $(flag CORE_MAP yes)
     readonly property bool sparkSmooth: $(flag SPARK_SMOOTH yes)
 }
 PEOF
@@ -199,13 +225,13 @@ if [ "$(flag LOGIN_WALLPAPER yes)" = true ]; then
     if [ -d "$wpdir" ] && [ -x "$render" ] && [ -f "$wpqml" ]; then
         wptmp=$(mktemp "$wpdir/.cyberpunk.XXXXXX.png" 2>/dev/null || true)
         if [ -n "$wptmp" ]; then
-            ty=$(cfg LOGIN_TITLE_Y 40)
-            case "$ty" in ''|*[!0-9]*) ty=40 ;; esac
-            [ "$ty" -le 80 ] || ty=40
+            ty=$(cfg LOGIN_TITLE_Y 35)
+            case "$ty" in ''|*[!0-9]*) ty=35 ;; esac
+            [ "$ty" -le 80 ] || ty=35
             if CYBERPUNK_TITLE_Y="$(awk "BEGIN { printf \"%.2f\", $ty / 100 }")" \
                 CYBERPUNK_SHOW_TITLE="$(flag LOGIN_TITLE yes)" \
                 CYBERPUNK_TITLE="$title" CYBERPUNK_TAGLINE="$tagline" \
-                CYBERPUNK_TITLE_FONT="$titlefont" CYBERPUNK_TITLE_SCALE="$titlescale"  CYBERPUNK_TAGLINE_FONT="$taglinefont" \
+                CYBERPUNK_TITLE_FONT="$titlefont" CYBERPUNK_TITLE_SCALE="$titlescale"  CYBERPUNK_TAGLINE_FONT="$taglinefont" CYBERPUNK_GRID_OPACITY="$gridopacity" \
                 CYBERPUNK_WALLPAPER_QML="$wpqml" CYBERPUNK_FONTS_DIR="$theme/fonts" \
                 timeout 60 "$render" "$wptmp" \
                 "$(hue ACCENT '#fcee09')" "$(hue SECONDARY '#02d7f2')" 2>/dev/null; then

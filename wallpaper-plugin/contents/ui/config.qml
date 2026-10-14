@@ -3,6 +3,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.kquickcontrols as KQuickControls
+import org.kde.ksysguard.faces as Faces
 
 // Settings for one screen (or the lock screen). Anything left at "Default" uses
 // the value from /etc/cyberpunk-splash.conf.
@@ -29,6 +30,24 @@ Kirigami.FormLayout {
     property string cfg_Secondary
     property string cfg_LogItems
     property string cfg_CaseSensor
+    property string cfg_SensorCpu
+    property string cfg_SensorCpuTemp
+    property string cfg_SensorMemUsed
+    property string cfg_SensorMemTotal
+    property string cfg_SensorGpu
+    property string cfg_SensorGpuTemp
+    property string cfg_SensorVramUsed
+    property string cfg_SensorVramTotal
+    property string cfg_SensorUptime
+    property string cfg_SensorGpuName
+    property string cfg_SensorGpuClock
+    property string cfg_SensorGpuPower
+    property string cfg_SensorGpuFan
+    property string cfg_SensorGpuJunction
+    property string cfg_SensorCoreCount
+    property bool cfg_ShowGpuPanel
+    property bool cfg_ShowCoreMap
+    property int cfg_GridOpacity
     property int cfg_LogRefresh
     property int cfg_SparkStep
     property int cfg_SparkPoints
@@ -58,7 +77,7 @@ Kirigami.FormLayout {
         { value: "qt",      text: "Qt version" },
         { value: "host",    text: "Host name" }
     ]
-    readonly property string defaultLog: "cpu,cputemp,mem,gpu,gputemp,vram,case,uptime"
+    readonly property string defaultLog: "cpu,cputemp,mem,gpu,gputemp,vram,case"
 
     // The fonts that ship with this theme come first, then every installed family.
     // Entries whose value starts with "__" are headings and cannot be picked.
@@ -151,6 +170,20 @@ Kirigami.FormLayout {
             }
         }
     }
+    // A sensor picker: KDE's own chooser, the one the System Monitor widgets use, which
+    // lists the sensors on this machine. Empty means "use the default sensor".
+    component SensorField: Faces.Choices {
+        id: sf
+        property string current: ""
+        signal picked(string sensorId)
+        supportsColors: false
+        labelsEditable: false
+        maxAllowedSensors: 1
+        selected: sf.current !== "" ? [sf.current] : []
+        onSelectedChanged: sf.picked(selected && selected.length > 0 ? selected[0] : "")
+        Layout.fillWidth: true
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+    }
     // a spin box where the lowest value reads "Default"
     component DefaultSpin: QQC2.SpinBox {
         property string unit: ""
@@ -193,6 +226,14 @@ Kirigami.FormLayout {
         unit: " % from top"
         value: root.cfg_TitleY
         onValueModified: root.cfg_TitleY = value
+    }
+    DefaultSpin {
+        Kirigami.FormData.label: "Grid contrast:"
+        from: -1; to: 40; stepSize: 2
+        offValue: -1
+        unit: " %"
+        value: root.cfg_GridOpacity
+        onValueModified: root.cfg_GridOpacity = value
     }
     QQC2.SpinBox {
         Kirigami.FormData.label: "Bottom margin:"
@@ -268,6 +309,17 @@ Kirigami.FormLayout {
     // ---- readings (Data terminal) ----
     Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: "Readings (Data terminal)" }
     QQC2.CheckBox {
+        Kirigami.FormData.label: "Panels:"
+        text: "Show the GPU panel (top right)"
+        checked: root.cfg_ShowGpuPanel
+        onToggled: root.cfg_ShowGpuPanel = checked
+    }
+    QQC2.CheckBox {
+        text: "Show the CPU core map (bottom left)"
+        checked: root.cfg_ShowCoreMap
+        onToggled: root.cfg_ShowCoreMap = checked
+    }
+    QQC2.CheckBox {
         Kirigami.FormData.label: "Log lines:"
         text: "Use the list from the system config"
         checked: root.cfg_LogItems === ""
@@ -286,18 +338,30 @@ Kirigami.FormLayout {
             }
         }
     }
-    QQC2.TextField {
-        Kirigami.FormData.label: "Case sensor:"
-        placeholderText: "e.g. lmsensors/nct6798-isa-0290/temp1"
-        text: root.cfg_CaseSensor
-        onTextEdited: root.cfg_CaseSensor = text
-    }
+    // ---- sensors ----
+    Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: "Sensors" }
     QQC2.Label {
-        text: "The sensor id of your case temperature, the one your System Monitor widget labels Case. List sensors with: kstatsviewer --list"
+        text: "Choose which sensor feeds each reading. Click a field to browse the sensors on this machine. Leave it empty to use the default."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 22
     }
+    SensorField { Kirigami.FormData.label: "CPU usage:";        current: root.cfg_SensorCpu;       onPicked: sensorId => root.cfg_SensorCpu = sensorId }
+    SensorField { Kirigami.FormData.label: "CPU temperature:";  current: root.cfg_SensorCpuTemp;   onPicked: sensorId => root.cfg_SensorCpuTemp = sensorId }
+    SensorField { Kirigami.FormData.label: "Memory used:";      current: root.cfg_SensorMemUsed;   onPicked: sensorId => root.cfg_SensorMemUsed = sensorId }
+    SensorField { Kirigami.FormData.label: "Memory total:";     current: root.cfg_SensorMemTotal;  onPicked: sensorId => root.cfg_SensorMemTotal = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU usage:";        current: root.cfg_SensorGpu;       onPicked: sensorId => root.cfg_SensorGpu = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU temperature:";  current: root.cfg_SensorGpuTemp;   onPicked: sensorId => root.cfg_SensorGpuTemp = sensorId }
+    SensorField { Kirigami.FormData.label: "Video memory used:"; current: root.cfg_SensorVramUsed; onPicked: sensorId => root.cfg_SensorVramUsed = sensorId }
+    SensorField { Kirigami.FormData.label: "Video memory total:"; current: root.cfg_SensorVramTotal; onPicked: sensorId => root.cfg_SensorVramTotal = sensorId }
+    SensorField { Kirigami.FormData.label: "Case temperature:"; current: root.cfg_CaseSensor;      onPicked: sensorId => root.cfg_CaseSensor = sensorId }
+    SensorField { Kirigami.FormData.label: "Uptime:";           current: root.cfg_SensorUptime;    onPicked: sensorId => root.cfg_SensorUptime = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU name:";         current: root.cfg_SensorGpuName;   onPicked: sensorId => root.cfg_SensorGpuName = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU clock:";        current: root.cfg_SensorGpuClock;  onPicked: sensorId => root.cfg_SensorGpuClock = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU power:";        current: root.cfg_SensorGpuPower;  onPicked: sensorId => root.cfg_SensorGpuPower = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU fan:";          current: root.cfg_SensorGpuFan;    onPicked: sensorId => root.cfg_SensorGpuFan = sensorId }
+    SensorField { Kirigami.FormData.label: "GPU junction temperature:"; current: root.cfg_SensorGpuJunction; onPicked: sensorId => root.cfg_SensorGpuJunction = sensorId }
+    SensorField { Kirigami.FormData.label: "CPU core count:";   current: root.cfg_SensorCoreCount; onPicked: sensorId => root.cfg_SensorCoreCount = sensorId }
     DefaultSpin {
         Kirigami.FormData.label: "Read every:"
         from: 0; to: 60

@@ -5,11 +5,12 @@
 #   CYBERPUNK_TITLE, CYBERPUNK_TAGLINE   text on the wallpaper
 #   CYBERPUNK_WALLPAPER_QML              path to Wallpaper.qml
 #   CYBERPUNK_FONTS_DIR                  directory holding the bundled fonts
-#   CYBERPUNK_TITLE_Y                    title top, 0 to 1 of the height (default 0.40)
+#   CYBERPUNK_TITLE_Y                    title top, 0 to 1 of the height (default 0.35)
 #   CYBERPUNK_SHOW_TITLE                 true or false (default true)
 #   CYBERPUNK_TITLE_FONT                 an installed font family for the title
 #   CYBERPUNK_TITLE_SCALE                title size multiplier (default 1)
 #   CYBERPUNK_TAGLINE_FONT               an installed font family for the tagline
+#   CYBERPUNK_GRID_OPACITY               grid line strength 0 to 1 (default 0.14)
 set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
@@ -18,11 +19,12 @@ fonts=${CYBERPUNK_FONTS_DIR:-$here/../theme/contents/splash/fonts}
 fonts=$(cd "$fonts" && pwd)
 title=${CYBERPUNK_TITLE:-CYBERPUNK}
 tagline=${CYBERPUNK_TAGLINE:-OS // neural desktop}
-titley=${CYBERPUNK_TITLE_Y:-0.40}
+titley=${CYBERPUNK_TITLE_Y:-0.35}
 showtitle=${CYBERPUNK_SHOW_TITLE:-true}
 titlefont=${CYBERPUNK_TITLE_FONT:-}
 titlescale=${CYBERPUNK_TITLE_SCALE:-1}
 taglinefont=${CYBERPUNK_TAGLINE_FONT:-}
+gridopacity=${CYBERPUNK_GRID_OPACITY:-0.14}
 out=$(realpath -m "$1")
 accent=${2:-#fcee09}
 secondary=${3:-#02d7f2}
@@ -62,6 +64,7 @@ $fontlines
             if (item.titleFont !== undefined) item.titleFont = "$titlefont"
             if (item.titleScale !== undefined) item.titleScale = $titlescale
             if (item.taglineFont !== undefined) item.taglineFont = "$taglinefont"
+            if (item.gridOpacity !== undefined) item.gridOpacity = $gridopacity
             if (item.showClock !== undefined) item.showClock = false   // a still image cannot tick
             if (item.liveStats !== undefined) item.liveStats = false    // readings would be frozen
         }

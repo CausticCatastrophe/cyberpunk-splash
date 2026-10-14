@@ -170,7 +170,8 @@ their way:
 | Setting | Values | Effect |
 |---|---|---|
 | `LOGIN_TITLE` | yes / no | Show or hide the title and tagline |
-| `LOGIN_TITLE_Y` | 0 to 80 (default 40) | Title position, as a percent of the screen height from the top. The default sits below the login and lock clock; lower it to move the title up |
+| `LOGIN_TITLE_Y` | 0 to 80 (default 35) | Title position, as a percent of the screen height from the top. The default centers the title and tagline vertically; raise it to move them down, for example below the login clock |
+| `GRID_OPACITY` | 0 to 40 (default 14) | Strength of the background grid in percent. 0 turns it off |
 
 To hide the login clock itself, untick "Show clock" on the Login Screen page
 in System Settings. It is stored as `ShowClock` in `/etc/plasmalogin.conf`.
@@ -209,7 +210,7 @@ screen keep their own choice, so each can use a different design.
 
 | Style | What it is | GPU cost |
 |---|---|---|
-| Data terminal | Host and OS block, a log of real readings, hex columns | about 0.4 points of GPU |
+| Data terminal | Identity block, live GPU panel, CPU core map and a log of real readings | about 0.4 points of GPU |
 | Hex columns | Hex data down both sides | near zero |
 | Terminal | Log in the corner, status block | near zero |
 | Classic | Drifting grid, glitch, CRT tear, roll and flicker | high |
@@ -231,7 +232,7 @@ margin** on that screen (about 4 to 5 percent clears a typical taskbar). The log
 the bottom corner brackets and the hex columns lift by that much so the panel does
 not cover them. It is per screen, so a screen without a panel and the lock screen
 stay at None. With a margin, the log reaches higher, so you may also want to move
-the title up with **Title position** on that screen (about 30 to 33 percent).
+the title up with **Title position** on that screen (about 28 to 30 percent).
 
 **Why the cost differs.** Measured with `tools/gpu-sample`, GPU load follows
 frames per second, not scene complexity: about 0.07 points of whole-GPU load per
@@ -243,11 +244,43 @@ doing, read from KDE's own system monitor service (the same source the System
 Monitor widgets use). Each reading has its own line with a sparkline of its
 recent history. The log is two columns, which keeps it short: `cpu`, `cputemp` and
 `mem` in the accent color on the left, and `gpu`, `gputemp` and `vram` in the
-secondary color on the right. Uptime and the static facts join the left column. Uptime and static facts such as OS,
-kernel, Plasma and Qt versions can be added as plain lines. Choose and order the
+secondary color on the right, and the case temperature sits last on the left.
+Uptime is shown in the top-left identity block, under the session. It, and static
+facts such as OS, kernel, Plasma and Qt versions, can also be added as plain log lines. Choose and order the
 lines with `LOG_ITEMS` (`cpu`, `cputemp`, `mem`, `gpu`, `gputemp`, `vram`,
-`uptime`, `os`, `kernel`, `plasma`, `qt`, `host`). Each line is drawn entirely in
-its group color, accent for CPU and secondary for GPU.
+`case`, `uptime`, `os`, `kernel`, `plasma`, `qt`, `host`). Each line is drawn
+entirely in its group color, accent for CPU and secondary for GPU.
+
+**Layout.** The screen is split into three vertical segments, all on the background
+grid. The middle (22% to 78% of the width) is reserved for the clock, title and
+tagline, and nothing else enters it; a wide title font shrinks to fit. The left gutter
+has the identity block (host, OS, kernel, session, uptime) with a live GPU panel in the
+secondary color under it (model, clock, power, fan, junction temperature). The right
+gutter, four grid cells wide and one cell in from the edge, has one terminal.
+The terminal is dense and left-justified, with short labels, compact values such as
+`5.9/46.9G`, a small graph beside each value, and rows half a grid cell tall. From the
+top: a CPU group (usage, temperature, ram, case temperature), then a CPU core map with
+one tile per core in four columns, each tile filling a grid cell and glowing brighter
+as that core gets busier, then a GPU group (usage, temperature, vram) in the secondary
+color. Headers, readings and the core map share one text column. The GPU panel and the terminal are live, so they appear in full only in the
+wallpaper plugin; the login still shows the identity block and a short list of static
+facts. Turn the GPU panel or core map off with `GPU_PANEL` and `CORE_MAP`, or per
+screen on the settings page. With a bottom margin set for a taskbar, the terminal
+lifts to clear it.
+
+**Choosing sensors.** Sensor ids differ between machines (a second GPU, another
+motherboard chip). On the wallpaper settings page, the **Sensors** section has a
+field for each reading (CPU usage and temperature, memory used and total, GPU usage
+and temperature, video memory used and total, case temperature, uptime, and the GPU
+panel and core map: GPU name, clock, power, fan, junction temperature and CPU core
+count). Click a
+field to browse the sensors on your machine with KDE's own chooser, the one the
+System Monitor widgets use. Empty fields use the defaults. The same can be set
+for every screen in `/etc/cyberpunk-splash.conf` with `SENSOR_CPU`,
+`SENSOR_CPU_TEMP`, `SENSOR_MEM_USED`, `SENSOR_MEM_TOTAL`, `SENSOR_GPU`,
+`SENSOR_GPU_TEMP`, `SENSOR_VRAM_USED`, `SENSOR_VRAM_TOTAL`, `SENSOR_UPTIME`,
+`SENSOR_GPU_NAME`, `SENSOR_GPU_CLOCK`, `SENSOR_GPU_POWER`, `SENSOR_GPU_FAN`,
+`SENSOR_GPU_JUNCTION`, `SENSOR_CORE_COUNT` and `CASE_SENSOR`. A reading whose sensor does not exist is left out.
 
 Graphs follow the System Monitor charts by default: one point per second, 60
 points (the last minute), a smooth line, a light fill and a vertical range that

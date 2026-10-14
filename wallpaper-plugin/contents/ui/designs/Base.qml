@@ -11,7 +11,7 @@ Rectangle {
     property color secondary: "#02d7f2"
     property string title: "CYBERPUNK"
     property string tagline: "OS // neural desktop"
-    property real titleY: 0.40
+    property real titleY: 0.35
     property bool showTitle: true
     property string titleFont: ""      // an installed font for the title; empty uses headFont
     property real titleScale: 1.0      // size multiplier, for fonts that run wide or narrow
@@ -19,7 +19,14 @@ Rectangle {
     // Raises everything anchored to the bottom edge, as a fraction of the height, so
     // a panel along the bottom does not cover it. Set per screen in the settings.
     property real bottomInset: 0
+    property real gridOpacity: 0.14    // grid line strength, 0 (off) to about 0.4
     readonly property real insetPx: height * bottomInset
+    // bottom edge of the title and tagline (0 when hidden), for designs that must stay clear of them
+    readonly property real taglineBottom: showTitle
+        ? height * titleY + u * 11.6 * titleScale * mainTitle.fit + u * 2 : 0
+    // top and bottom of the title's letters (not its text box), for blocks that sit beside it
+    readonly property real titleGlyphTop: showTitle ? height * titleY + u * 3 * titleScale * mainTitle.fit : height
+    readonly property real titleGlyphBottom: showTitle ? height * titleY + u * 10.4 * titleScale * mainTitle.fit : 0
     readonly property real usableH: height - insetPx
     // the title font if Qt can find it, otherwise the regular head font
     readonly property string titleFamily:
@@ -34,12 +41,18 @@ Rectangle {
     default property alias content: slot.data
 
     Canvas {
+        id: gridCanvas
         anchors.fill: parent
+        Connections {
+            target: root
+            function onGridOpacityChanged() { gridCanvas.requestPaint(); }
+            function onAccentChanged() { gridCanvas.requestPaint(); }
+        }
         onPaint: {
             var c = getContext("2d");
             c.reset();
             c.strokeStyle = root.accent;
-            c.globalAlpha = 0.07;
+            c.globalAlpha = root.gridOpacity;
             c.lineWidth = 1;
             var s = root.u * 4;
             for (var x = 0; x < width; x += s) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, height); c.stroke(); }
@@ -56,8 +69,8 @@ Rectangle {
         height: root.u * 13
         y: root.height * root.titleY
         component TitleText: Text {
-            x: root.u * 20
-            width: root.u * 60                  // the title may use the middle 60% of the width
+            x: root.u * 22
+            width: root.u * 56                  // the title may use the middle 56% of the width, leaving room beside the gutters
             horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.HorizontalFit    // a wide font shrinks to fit, never overlaps the side columns
             minimumPixelSize: 8
@@ -70,7 +83,7 @@ Rectangle {
             font.pixelSize: root.u * 11 * root.titleScale
             font.letterSpacing: root.u * 0.7 * root.titleScale
         }
-        TitleText { x: root.u * 19.7; color: root.secondary; opacity: 0.22 }
+        TitleText { x: root.u * 21.7; color: root.secondary; opacity: 0.22 }
         TitleText { id: mainTitle; color: "#e8e6d9"; opacity: 0.65 }
         Text {
             y: root.u * 11.6 * root.titleScale * mainTitle.fit

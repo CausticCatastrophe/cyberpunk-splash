@@ -34,11 +34,24 @@ WallpaperItem {
     readonly property string effSecondary: cfg.Secondary !== "" ? cfg.Secondary : sys.secondary
     readonly property string effTitle: cfg.Title !== "" ? cfg.Title : sys.title
     readonly property string effTagline: cfg.Tagline !== "" ? cfg.Tagline : sys.tagline
+    readonly property real effGridOpacity: cfg.GridOpacity >= 0 ? cfg.GridOpacity / 100 : sys.gridOpacity
     readonly property real effTitleY: cfg.TitleY >= 0 ? cfg.TitleY / 100 : sys.titleY
     readonly property string effTitleFont: cfg.TitleFont !== "" ? cfg.TitleFont : sys.titleFont
     readonly property string effTaglineFont: cfg.TaglineFont !== "" ? cfg.TaglineFont : sys.taglineFont
     readonly property real effTitleScale: cfg.TitleScale > 0 ? cfg.TitleScale / 100 : sys.titleScale
     readonly property string effCaseSensor: cfg.CaseSensor !== "" ? cfg.CaseSensor : sys.caseSensor
+    // sensor ids per reading: this screen's choice, else the system config's, else the built-in default
+    function sid(mine, system) { return mine !== "" ? mine : system; }
+    readonly property var effSensorIds: ({
+        cpu: sid(cfg.SensorCpu, sys.sensorCpu), cputemp: sid(cfg.SensorCpuTemp, sys.sensorCpuTemp),
+        memused: sid(cfg.SensorMemUsed, sys.sensorMemUsed), memtotal: sid(cfg.SensorMemTotal, sys.sensorMemTotal),
+        gpu: sid(cfg.SensorGpu, sys.sensorGpu), gputemp: sid(cfg.SensorGpuTemp, sys.sensorGpuTemp),
+        vramused: sid(cfg.SensorVramUsed, sys.sensorVramUsed), vramtotal: sid(cfg.SensorVramTotal, sys.sensorVramTotal),
+        uptime: sid(cfg.SensorUptime, sys.sensorUptime), case: effCaseSensor,
+        gpuname: sid(cfg.SensorGpuName, sys.sensorGpuName), gpuclock: sid(cfg.SensorGpuClock, sys.sensorGpuClock),
+        gpupower: sid(cfg.SensorGpuPower, sys.sensorGpuPower), gpufan: sid(cfg.SensorGpuFan, sys.sensorGpuFan),
+        gpujunction: sid(cfg.SensorGpuJunction, sys.sensorGpuJunction), corecount: sid(cfg.SensorCoreCount, sys.sensorCoreCount)
+    })
     readonly property string effLogItems: cfg.LogItems !== "" ? cfg.LogItems : sys.logItems
     readonly property int effLogRefresh: cfg.LogRefresh > 0 ? cfg.LogRefresh : sys.logRefresh
     readonly property int effSparkStep: cfg.SparkStep > 0 ? cfg.SparkStep : (cfg.LogRefresh > 0 ? cfg.LogRefresh : sys.sparkStep)
@@ -55,6 +68,7 @@ WallpaperItem {
     Binding { target: design.item; property: "tagline"; value: root.effTagline; when: root.takesProps }
     Binding { target: design.item; property: "titleY"; value: root.effTitleY; when: root.takesProps }
     Binding { target: design.item; property: "showTitle"; value: sys.showTitle; when: root.takesProps }
+    Binding { target: design.item; property: "gridOpacity"; value: root.effGridOpacity; when: root.takesProps }
     Binding { target: design.item; property: "bottomInset"; value: root.configuration.BottomInset / 100; when: root.takesProps }
     Binding { target: design.item; property: "titleFont"; value: root.effTitleFont; when: root.takesProps }
     Binding { target: design.item; property: "taglineFont"; value: root.effTaglineFont; when: root.takesProps }
@@ -71,7 +85,9 @@ WallpaperItem {
         value: fMono.status === FontLoader.Ready ? fMono.name : "monospace"
         when: root.takesProps
     }
-    Binding { target: design.item; property: "caseSensor"; value: root.effCaseSensor; when: root.hasLog }
+    Binding { target: design.item; property: "showGpuPanel"; value: cfg.ShowGpuPanel && sys.gpuPanel; when: root.hasLog }
+    Binding { target: design.item; property: "showCoreMap"; value: cfg.ShowCoreMap && sys.coreMap; when: root.hasLog }
+    Binding { target: design.item; property: "sensorIds"; value: root.effSensorIds; when: root.hasLog }
     Binding { target: design.item; property: "logItems"; value: root.effLogItems; when: root.hasLog }
     Binding { target: design.item; property: "logRefresh"; value: root.effLogRefresh; when: root.hasLog }
     Binding { target: design.item; property: "sparkStep"; value: root.effSparkStep; when: root.hasLog }
