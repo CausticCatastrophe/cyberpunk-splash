@@ -69,13 +69,13 @@ Kirigami.FormLayout {
 
     // value is the design's file name; the label says what it costs to run
     readonly property var styles: [
-        { value: "DataTerminal", text: "Data terminal (log and hex columns, almost free)" },
+        { value: "DataTerminal", text: "Data terminal (live readings, almost free)" },
         { value: "HexColumns",   text: "Hex columns (almost free)" },
         { value: "Terminal",     text: "Terminal (almost free)" },
         { value: "Classic",      text: "Classic (full motion, uses noticeable GPU)" }
     ]
 
-    // log lines in a fixed order; the system config can use any order
+    // log lines, in this fixed order
     readonly property var logChoices: [
         { value: "cpu",     text: "CPU usage" },
         { value: "cputemp", text: "CPU temperature" },
@@ -93,12 +93,12 @@ Kirigami.FormLayout {
     ]
     readonly property string defaultLog: "cpu,cputemp,mem,gpu,gputemp,vram,case"
 
-    // The fonts that ship with this theme come first, then every installed family.
+    // The fonts that ship with this wallpaper come first, then every installed family.
     // Entries whose value starts with "__" are headings and cannot be picked.
     readonly property var bundledFonts: ["Oxanium", "Chakra Petch", "Tektur"]
     readonly property var fontChoices: {
         var out = [{ value: "", text: "Default (Rajdhani)" },
-                   { value: "__h1", text: "Bundled with this theme" }];
+                   { value: "__h1", text: "Bundled with this wallpaper" }];
         for (var i = 0; i < bundledFonts.length; i++)
             out.push({ value: bundledFonts[i], text: bundledFonts[i] });
         out.push({ value: "__h2", text: "All installed fonts" });
@@ -263,7 +263,7 @@ Kirigami.FormLayout {
         onValueModified: root.cfg_BottomInset = value
     }
     QQC2.Label {
-        text: "Raises the log and bottom corners so a panel does not cover them. About 4 to 5 % clears a typical taskbar."
+        text: "Raises the terminal and bottom corners so a panel does not cover them. About 4 to 5 % clears a typical taskbar."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 22
@@ -329,18 +329,18 @@ Kirigami.FormLayout {
     Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: "Readings (Data terminal)" }
     QQC2.CheckBox {
         Kirigami.FormData.label: "Panels:"
-        text: "Show the GPU panel (top right)"
+        text: "Show the CPU and GPU panels (left)"
         checked: root.cfg_ShowGpuPanel
         onToggled: root.cfg_ShowGpuPanel = checked
     }
     QQC2.CheckBox {
-        text: "Show the CPU core map (bottom left)"
+        text: "Show the CPU core map (in the terminal, right)"
         checked: root.cfg_ShowCoreMap
         onToggled: root.cfg_ShowCoreMap = checked
     }
     QQC2.CheckBox {
         Kirigami.FormData.label: "Log lines:"
-        text: "Use the list from the system config"
+        text: "Use the default list"
         checked: root.cfg_LogItems === ""
         onToggled: root.cfg_LogItems = checked ? "" : root.defaultLog
     }

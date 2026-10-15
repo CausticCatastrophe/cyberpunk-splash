@@ -121,6 +121,11 @@ an AI subscription. Off by default (setting "AI subscription usage"). It reads s
 files and makes no network calls. The feed that writes them for Claude Code lives in
 [`usage/`](usage/README.md); it is a separate optional package, never installed with this one.
 
+## License
+
+GPL-2.0-or-later, as declared in the package. The bundled fonts keep their own licenses (SIL
+Open Font License 1.1); see `wallpaper-plugin/contents/fonts/`.
+
 ## Development
 
 ```
