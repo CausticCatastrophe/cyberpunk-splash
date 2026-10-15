@@ -53,8 +53,19 @@ not provided to the status line.
 ## Install
 
 ```
-cd (mktemp -d)
+sudo pacman -S --needed git base-devel
+cd ~
+rm -rf cyberpunk-wallpaper
 git clone https://github.com/CausticCatastrophe/cyberpunk-wallpaper
 cd cyberpunk-wallpaper/usage
 makepkg -si
+cd ~
+rm -rf cyberpunk-wallpaper
 ```
+
+It asks for your password (typing shows nothing; press Enter when done) and, if asked to proceed,
+press Enter. The last two lines delete the downloaded files.
+
+Remove it with `sudo pacman -Rns ai-subscription-usage`. The files it wrote stay in
+`~/.local/state/ai-usage`; delete that folder if you no longer want them, and take the
+`statusLine` entry out of `~/.claude/settings.json`.

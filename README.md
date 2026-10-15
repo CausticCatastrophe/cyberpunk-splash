@@ -17,14 +17,26 @@ Fonts below.
 
 ## Install
 
+Paste these lines into a terminal and press Enter:
+
 ```
-cd (mktemp -d)
+sudo pacman -S --needed git base-devel
+cd ~
+rm -rf cyberpunk-wallpaper
 git clone https://github.com/CausticCatastrophe/cyberpunk-wallpaper
 cd cyberpunk-wallpaper
 makepkg -si
+systemctl --user restart plasma-plasmashell
+cd ~
+rm -rf cyberpunk-wallpaper
 ```
 
-Then restart the shell: `systemctl --user restart plasma-plasmashell`.
+- It asks for your password. Typing it shows nothing on screen; that is normal. Type it and
+  press Enter.
+- If it asks "Proceed with installation? [Y/n]", press Enter.
+- The `systemctl` line restarts the desktop shell so the wallpaper plugin loads; the panel
+  and desktop flicker for a moment.
+- The last two lines delete the downloaded files once it is installed.
 
 Coming from the old `cyberpunk-splash` package? This one replaces it. The splash theme and
 the boot theme are gone. Switch the splash in System Settings, Splash Screen, if it is still
@@ -126,6 +138,19 @@ A block two grid squares tall above the terminal, with segmented bars for the us
 an AI subscription. Off by default (setting "AI subscription usage"). It reads small local
 files and makes no network calls. The feed that writes them for Claude Code lives in
 [`usage/`](usage/README.md); it is a separate optional package, never installed with this one.
+
+## Uninstall
+
+```
+sudo pacman -Rns cyberpunk-wallpaper
+```
+
+That removes everything the package installed (the plugin under
+`/usr/share/plasma/wallpapers/org.cyberpunk.wallpaper`). Your settings are yours and stay: the
+desktop and lock screen settings in `~/.config`, the login settings in `/etc/plasmalogin.conf`, and
+the optional usage files in `~/.local/state/ai-usage`. Before removing, switch each place (desktop,
+lock, login) to another wallpaper so none is left pointing at a plugin that is gone; the login
+screen falls back to the default if its plugin is missing.
 
 ## License
 
