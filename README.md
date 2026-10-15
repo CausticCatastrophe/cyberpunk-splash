@@ -9,6 +9,12 @@ title and clock kept clear in the middle.
 It is a single wallpaper plugin (`org.cyberpunk.wallpaper`). Everything is set in the
 wallpaper settings page; there is no system config file and nothing runs as root.
 
+![The Data terminal design with live readings](screenshots/cyberpunk-wallpaper.png)
+
+The Data terminal design at 2560x1440, with the title in a custom display font. The hostname
+is a placeholder, and the usage bars show sample numbers. The title font is not bundled; see
+Fonts below.
+
 ## Install
 
 ```
