@@ -1,0 +1,23 @@
+post_install() {
+    cat <<'MSG'
+==> Cyberpunk Wallpaper is installed. Pick it where you want it:
+    Desktop:  right-click the desktop > Configure Desktop > Wallpaper type
+    Lock:     System Settings > Screen Locking > Appearance
+    Login:    System Settings > Login Screen (or WallpaperPluginId in /etc/plasmalogin.conf)
+    Each place keeps its own settings; there is no system config file.
+    Restart the shell to load it: systemctl --user restart plasma-plasmashell
+
+==> Coming from cyberpunk-splash? That package's splash theme and Plymouth theme are gone.
+    - System Settings > Splash Screen: pick another splash if this one is still selected.
+    - If you applied its boot theme: sudo plymouth-set-default-theme -R <your old theme>
+      and delete /usr/share/plymouth/themes/cyberpunk-splash.
+    - Settings from /etc/cyberpunk-splash.conf (title, fonts, colors) are now set in the
+      wallpaper settings of each screen, the lock screen and the login screen.
+      The old file can be deleted (also /etc/cyberpunk-splash.conf.pacsave).
+MSG
+}
+
+post_upgrade() {
+    echo "==> Cyberpunk Wallpaper updated. Restart the shell to load it:"
+    echo "    systemctl --user restart plasma-plasmashell"
+}

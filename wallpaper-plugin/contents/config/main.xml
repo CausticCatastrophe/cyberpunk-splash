@@ -30,6 +30,10 @@
     </entry>
     <!-- Everything below overrides the system config for this screen only.
          Empty text, 0 or -1 mean "use the system value". -->
+    <entry name="ShowTitle" type="Bool">
+      <label>Show the title and tagline</label>
+      <default>true</default>
+    </entry>
     <entry name="TitleFont" type="String">
       <label>Title font (an installed family)</label>
       <default></default>

@@ -6,7 +6,7 @@ import org.kde.kquickcontrols as KQuickControls
 import org.kde.ksysguard.faces as Faces
 
 // Settings for one screen (or the lock screen). Anything left at "Default" uses
-// the value from /etc/cyberpunk-splash.conf.
+// the built-in default.
 Kirigami.FormLayout {
     id: root
     twinFormLayouts: parentLayout
@@ -25,6 +25,7 @@ Kirigami.FormLayout {
     property bool cfg_ShowClockDefault
     property bool cfg_Clock24h
     property bool cfg_Clock24hDefault
+    property bool cfg_ShowTitle
     property string cfg_TitleFont
     property string cfg_TaglineFont
     property int cfg_TitleScale
@@ -214,6 +215,11 @@ Kirigami.FormLayout {
         model: root.styles
         onActivated: root.cfg_Style = currentValue
         Component.onCompleted: currentIndex = Math.max(0, indexOfValue(root.cfg_Style))
+    }
+    QQC2.CheckBox {
+        text: "Show the title and tagline"
+        checked: root.cfg_ShowTitle
+        onToggled: root.cfg_ShowTitle = checked
     }
     FontPicker {
         Kirigami.FormData.label: "Title font:"

@@ -4,6 +4,6 @@ post_install() {
     1. Claude Code: set its status line command to  ai-usage-claude-statusline
        (see usage/README.md in the repo for the exact settings snippet).
     2. Turn on "Show usage bars" under "AI subscription usage" in the
-       Cyberpunk Splash wallpaper settings for the screen you want them on.
+       Cyberpunk Wallpaper settings for the screen you want them on.
 MSG
 }

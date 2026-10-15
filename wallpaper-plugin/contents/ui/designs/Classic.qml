@@ -2,8 +2,8 @@ import QtQuick
 import ".."
 
 // Animated version of the login/lock wallpaper: drifting grid, glitching
-// title, and the same CRT effects as the splash. Settings come from the
-// stamped SystemInfo.qml next to this file.
+// title, and CRT effects. Settings come from the
+// built-in defaults in SystemInfo.qml next to this file.
 Item {
     id: root
 
@@ -14,11 +14,10 @@ Item {
     readonly property color fg: "#e8e6d9"
     readonly property real u: width / 100   // 1 unit = 1% of the width
 
-    // bundled fonts from the splash theme; system fonts if they are missing
-    readonly property string fontDir: "file:///usr/share/plasma/look-and-feel/org.cyberpunk.splash/contents/splash/fonts/"
-    FontLoader { id: fBold; source: root.fontDir + "Rajdhani-Bold.ttf" }
-    FontLoader { id: fSemi; source: root.fontDir + "Rajdhani-SemiBold.ttf" }
-    FontLoader { id: fMono; source: root.fontDir + "ShareTechMono-Regular.ttf" }
+    // bundled fonts (SIL OFL, see contents/fonts/); system fonts if they are missing
+    FontLoader { id: fBold; source: Qt.resolvedUrl("../../fonts/Rajdhani-Bold.ttf") }
+    FontLoader { id: fSemi; source: Qt.resolvedUrl("../../fonts/Rajdhani-SemiBold.ttf") }
+    FontLoader { id: fMono; source: Qt.resolvedUrl("../../fonts/ShareTechMono-Regular.ttf") }
     readonly property string headName: fBold.status === FontLoader.Ready ? fBold.name : "Noto Sans"
     readonly property string subName: fSemi.status === FontLoader.Ready ? fSemi.name : "Noto Sans"
     readonly property string monoName: fMono.status === FontLoader.Ready ? fMono.name : "monospace"

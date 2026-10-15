@@ -1,8 +1,13 @@
 import QtQuick
 
-// Default values. cyberpunk-splash-stamp overwrites this file when the package is
-// installed; these defaults are used when it has not run.
-QtObject {
+// Built-in defaults for everything the settings page can override, plus the live system
+// facts. Each screen's settings win over these; an empty text, 0 or -1 there means "use this".
+Item {
+    id: info
+    visible: false
+    width: 0
+    height: 0
+
     readonly property string title: "CYBERPUNK"
     readonly property string tagline: "OS // neural desktop"
     readonly property string titleFont: ""
@@ -13,19 +18,20 @@ QtObject {
     readonly property real titleY: 0.35
     readonly property bool showTitle: true
     readonly property real gridOpacity: 0.14   // grid line strength
-    readonly property bool glitchTitle: true
+    readonly property bool glitchTitle: true   // effects of the Classic design
     readonly property bool crtTear: true
     readonly property bool crtRoll: true
     readonly property bool crtFlicker: true
     readonly property bool scanlines: true
 
-    // facts for the log and identity block
-    readonly property string osName: ""
-    readonly property string kernel: ""
-    readonly property string cpuModel: ""
-    readonly property string plasma: ""
-    readonly property string qt: ""
-    readonly property string hostname: ""
+    // facts for the log and identity block, read live (see SystemFacts.qml)
+    Loader { id: facts; source: "SystemFacts.qml" }
+    readonly property string osName: facts.item ? facts.item.osName : ""
+    readonly property string kernel: facts.item ? facts.item.kernel : ""
+    readonly property string cpuModel: facts.item ? facts.item.cpuModel : ""
+    readonly property string plasma: facts.item ? facts.item.plasma : ""
+    readonly property string qt: facts.item ? facts.item.qt : ""
+    readonly property string hostname: facts.item ? facts.item.hostname : ""
     readonly property string logItems: "cpu,cputemp,mem,gpu,gputemp,vram,case"
     readonly property int logRefresh: 1     // seconds between sensor readings
     readonly property int sparkStep: 1      // seconds between sparkline points

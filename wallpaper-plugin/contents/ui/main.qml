@@ -2,21 +2,18 @@ import QtQuick
 import org.kde.plasma.plasmoid
 
 // Loads the design chosen for this screen (Style in the wallpaper settings) and
-// feeds it the stamped colors, title and fonts. Each screen and the lock screen
+// feeds it the colors, title and fonts. Each screen and the lock screen
 // have their own settings, so each can use a different design.
 WallpaperItem {
     id: root
 
     SystemInfo { id: sys }
 
-    // bundled fonts from the splash theme; system fonts if they are missing
-    readonly property string fontDir: "file:///usr/share/plasma/look-and-feel/org.cyberpunk.splash/contents/splash/fonts/"
-    FontLoader { id: fBold; source: root.fontDir + "Rajdhani-Bold.ttf" }
-    FontLoader { id: fMono; source: root.fontDir + "ShareTechMono-Regular.ttf" }
-    FontLoader { source: root.fontDir + "Rajdhani-SemiBold.ttf" }
-    // Title and tagline alternates, shipped inside the plugin itself so they work
-    // even when the splash theme on the system is older. Registered so a font
-    // setting can name them.
+    // Bundled fonts (SIL OFL, see contents/fonts/); system fonts if loading fails. The
+    // title and tagline alternates are registered so a font setting can name them.
+    FontLoader { id: fBold; source: Qt.resolvedUrl("../fonts/Rajdhani-Bold.ttf") }
+    FontLoader { id: fMono; source: Qt.resolvedUrl("../fonts/ShareTechMono-Regular.ttf") }
+    FontLoader { source: Qt.resolvedUrl("../fonts/Rajdhani-SemiBold.ttf") }
     FontLoader { source: Qt.resolvedUrl("../fonts/Oxanium-ExtraBold.ttf") }
     FontLoader { source: Qt.resolvedUrl("../fonts/ChakraPetch-Bold.ttf") }
     FontLoader { source: Qt.resolvedUrl("../fonts/Tektur-Bold.ttf") }
@@ -28,7 +25,7 @@ WallpaperItem {
     }
 
     // Per-screen values from the settings page win; empty, 0 or -1 mean "not set",
-    // and then the system config (the stamped SystemInfo) is used.
+    // and then the built-in default (SystemInfo) is used.
     readonly property var cfg: root.configuration
     readonly property string effAccent: cfg.Accent !== "" ? cfg.Accent : sys.accent
     readonly property string effSecondary: cfg.Secondary !== "" ? cfg.Secondary : sys.secondary
@@ -67,7 +64,7 @@ WallpaperItem {
     Binding { target: design.item; property: "title"; value: root.effTitle; when: root.takesProps }
     Binding { target: design.item; property: "tagline"; value: root.effTagline; when: root.takesProps }
     Binding { target: design.item; property: "titleY"; value: root.effTitleY; when: root.takesProps }
-    Binding { target: design.item; property: "showTitle"; value: sys.showTitle; when: root.takesProps }
+    Binding { target: design.item; property: "showTitle"; value: cfg.ShowTitle; when: root.takesProps }
     Binding { target: design.item; property: "gridOpacity"; value: root.effGridOpacity; when: root.takesProps }
     Binding { target: design.item; property: "bottomInset"; value: root.configuration.BottomInset / 100; when: root.takesProps }
     Binding { target: design.item; property: "titleFont"; value: root.effTitleFont; when: root.takesProps }

@@ -6,12 +6,12 @@
                 "Name": "caustic"
             }
         ],
-        "Description": "Animated cyberpunk wallpaper matching the Cyberpunk Splash theme",
+        "Description": "Animated cyberpunk HUD wallpaper with live system readings, for the desktop, lock screen and login screen",
         "EnabledByDefault": true,
         "Icon": "preferences-desktop-wallpaper",
         "Id": "org.cyberpunk.wallpaper",
         "License": "GPL-2.0-or-later",
-        "Name": "Cyberpunk Splash (Animated)",
-        "Website": "https://github.com/CausticCatastrophe/cyberpunk-splash"
+        "Name": "Cyberpunk Wallpaper",
+        "Website": "https://github.com/CausticCatastrophe/cyberpunk-wallpaper"
     }
 }

@@ -1,6 +1,6 @@
 # AI Subscription Usage feed
 
-An optional add-on for the Cyberpunk Splash animated wallpaper, which can draw your AI
+An optional add-on for the Cyberpunk Wallpaper, which can draw your AI
 subscription's usage limits as segmented bars in its right gutter (see the wallpaper
 settings, "AI subscription usage"). This folder holds the part that supplies the numbers.
 The main package never builds or installs it, and nothing here is enabled by default.
@@ -54,7 +54,7 @@ not provided to the status line.
 
 ```
 cd (mktemp -d)
-git clone https://github.com/CausticCatastrophe/cyberpunk-splash
-cd cyberpunk-splash/usage
+git clone https://github.com/CausticCatastrophe/cyberpunk-wallpaper
+cd cyberpunk-wallpaper/usage
 makepkg -si
 ```
