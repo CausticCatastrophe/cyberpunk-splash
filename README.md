@@ -381,3 +381,24 @@ The animated wallpaper can draw your AI subscription's usage limits as bars abov
 readings. It is off by default (per-screen setting "AI subscription usage") and reads small
 local files with no network calls. The optional feed that writes them, for Claude Code, is
 in [`usage/`](usage/README.md); it is not part of this package and is never installed with it.
+
+## Optional: boot splash (Plymouth)
+
+The Plasma splash only shows for a second or two after login. For a longer one at boot,
+the package can build a Plymouth theme from the same splash: your title, fonts, colors,
+grid, frame, boot log, stage text and the 48-segment progress bar, driven by Plymouth's
+boot progress. It needs `plymouth` (already in the initramfs hooks on CachyOS) and
+`imagemagick`.
+
+```
+sudo cyberpunk-splash-plymouth
+sudo plymouth-set-default-theme -R cyberpunk-splash
+```
+
+The first command renders the theme at 2560x1440 (pass another `WIDTH HEIGHT` to
+change it; it is scaled to each screen), the second selects it and rebuilds the
+initramfs. Run both again after changing the title, fonts or colors. To go back:
+`sudo plymouth-set-default-theme -R <previous theme>`, for example `cachyos-bootanimation`.
+Phase 1 shows the static scene, the boot log, the stage text, the progress bar and a
+blinking cursor; the glitch, tear, roll and flicker effects are not in the boot version
+yet. It has no password prompt, so it is not for encrypted-disk setups.

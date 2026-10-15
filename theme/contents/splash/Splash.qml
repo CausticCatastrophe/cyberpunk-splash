@@ -4,7 +4,14 @@ import QtQuick
 // everything below is a function of that one number plus SystemInfo.
 Rectangle {
     id: root
-    color: "#050506"
+    // "all" draws the whole splash. Any other value draws one piece on a transparent
+    // background, for the Plymouth boot theme (see plymouth/): "base" (grid, frame, title,
+    // corner text, log bar, progress frame), "stage" (the stage text and counter for
+    // `stage`) or "log0".."log5" (one boot log line).
+    property string piece: "all"
+    readonly property bool whole: piece === "all"
+    readonly property bool onBase: whole || piece === "base"
+    color: whole ? "#050506" : "transparent"
 
     property int stage: 0
 
@@ -48,6 +55,7 @@ Rectangle {
 
     SystemInfo { id: sys }
     component HudText: Text {
+        visible: root.onBase
         color: root.accent
         opacity: 0.8
         font.family: root.monoName
@@ -60,6 +68,7 @@ Rectangle {
         property bool atLeft: true
         width: root.u * 3
         height: width
+        visible: root.onBase
         Rectangle { width: parent.width; height: 2; color: root.accent; y: parent.atTop ? 0 : parent.height - 2 }
         Rectangle { width: 2; height: parent.height; color: root.accent; x: parent.atLeft ? 0 : parent.width - 2 }
     }
@@ -72,6 +81,7 @@ Rectangle {
         // faint grid
         Canvas {
             anchors.fill: parent
+            visible: root.onBase
             onPaint: {
                 var c = getContext("2d");
                 c.reset();
@@ -97,6 +107,7 @@ Rectangle {
         // title with a periodic RGB-split glitch
         Item {
             id: titleBlock
+            visible: root.onBase
             width: root.width
             height: root.u * 11
             y: root.height * 0.24 - height / 2
@@ -136,7 +147,7 @@ Rectangle {
 
             // timings follow a 3.2 s cycle: cyan fires at 90/93/96 %, accent at 91/94/97 %
             SequentialAnimation {
-                running: sys.glitchTitle
+                running: sys.glitchTitle && root.whole
                 loops: Animation.Infinite
                 PauseAnimation { duration: 2880 }
                 ScriptAction { script: { bandCyan.topF = 0.20; bandCyan.botF = 0.55; bandCyan.dx = -root.u * 0.6 } }
@@ -148,7 +159,7 @@ Rectangle {
                 ScriptAction { script: { bandCyan.topF = 0.5; bandCyan.botF = 0.5; bandCyan.dx = 0 } }
             }
             SequentialAnimation {
-                running: sys.glitchTitle
+                running: sys.glitchTitle && root.whole
                 loops: Animation.Infinite
                 PauseAnimation { duration: 2912 }
                 ScriptAction { script: { bandAccent.topF = 0.58; bandAccent.botF = 0.12; bandAccent.dx = root.u * 0.6 } }
@@ -162,6 +173,7 @@ Rectangle {
         }
 
         Text {
+            visible: root.onBase
             y: root.height * 0.24 + root.u * 5.2 * sys.titleScale
             width: root.width
             horizontalAlignment: Text.AlignHCenter
@@ -182,7 +194,7 @@ Rectangle {
             width: root.u * 46
             height: lineH * 7
 
-            Rectangle { x: 0; y: 0; width: 2; height: parent.height; color: root.accent }
+            Rectangle { visible: root.onBase; x: 0; y: 0; width: 2; height: parent.height; color: root.accent }
 
             Repeater {
                 model: root.logLines
@@ -193,17 +205,19 @@ Rectangle {
                     y: index * log.lineH
                     height: log.lineH
                     verticalAlignment: Text.AlignVCenter
+                    visible: root.whole || root.piece === "log" + index
                     textFormat: Text.StyledText
                     color: root.dim
                     font.family: root.monoName
                     font.pixelSize: root.u * 1.25
                     text: "<font color='" + (modelData[0] === "a" ? root.accent : root.secondary) + "'>&gt;</font> " + modelData[1]
-                    opacity: index < root.stage ? 1 : 0
+                    opacity: !root.whole || index < root.stage ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: 150 } }
                 }
             }
 
             Rectangle {
+                visible: root.whole
                 x: root.u * 1.6
                 y: root.stage * log.lineH + (log.lineH - height) / 2
                 width: root.u * 0.7
@@ -228,6 +242,7 @@ Rectangle {
             y: root.height - root.u * 6.5 - height
 
             Text {
+                visible: root.whole || root.piece === "stage"
                 anchors.left: parent.left
                 text: (root.stage >= root.maxStage && sys.userName !== ""
                        ? "welcome back, " + sys.userName
@@ -238,6 +253,7 @@ Rectangle {
                 font.letterSpacing: root.u * 0.176
             }
             Text {
+                visible: root.whole || root.piece === "stage"
                 anchors.right: parent.right
                 text: "STAGE " + Math.min(root.stage, root.maxStage) + "/" + root.maxStage
                 color: root.fg
@@ -246,6 +262,7 @@ Rectangle {
                 font.letterSpacing: root.u * 0.176
             }
             Rectangle {
+                visible: root.onBase
                 anchors.bottom: parent.bottom
                 width: parent.width
                 height: root.u * 1.1
@@ -254,6 +271,7 @@ Rectangle {
                 border.width: 1
 
                 Row {
+                    visible: root.whole
                     x: 3
                     y: 3
                     spacing: 2
@@ -299,7 +317,7 @@ Rectangle {
     }
 
     SequentialAnimation {
-        running: sys.crtTear
+        running: sys.crtTear && root.whole
         loops: Animation.Infinite
         PauseAnimation { duration: 4300 }
         ScriptAction { script: {
@@ -321,7 +339,7 @@ Rectangle {
     // slow refresh bar rolling down the screen
     Rectangle {
         id: rollBar
-        visible: sys.crtRoll
+        visible: sys.crtRoll && root.whole
         width: root.width
         height: root.height * 0.14
         y: -height
@@ -342,7 +360,7 @@ Rectangle {
     // brief brightness flicker
     Rectangle {
         id: flicker
-        visible: sys.crtFlicker
+        visible: sys.crtFlicker && root.whole
         anchors.fill: parent
         color: "black"
         opacity: 0
@@ -362,7 +380,7 @@ Rectangle {
     // scanlines on top
     Canvas {
         anchors.fill: parent
-        visible: sys.scanlines
+        visible: sys.scanlines && root.whole
         z: 10
         onPaint: {
             var c = getContext("2d");

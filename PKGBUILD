@@ -9,6 +9,8 @@ license=('GPL-2.0-or-later')
 depends=('plasma-workspace' 'pacman' 'qt6-declarative')
 makedepends=('git')
 backup=('etc/cyberpunk-splash.conf')
+optdepends=('plymouth: boot splash theme (see cyberpunk-splash-plymouth)'
+            'imagemagick: needed by cyberpunk-splash-plymouth to build the boot theme')
 install=cyberpunk-splash.install
 source=("$pkgname::git+$url.git")
 sha256sums=('SKIP')
@@ -48,6 +50,10 @@ package() {
         "$pkgdir/usr/share/wallpapers/CyberpunkSplash/metadata.json"
     install -Dm644 "$src/wallpaper/default.png" \
         "$pkgdir/usr/share/wallpapers/CyberpunkSplash/contents/images/2560x1440.png"
+
+    # boot splash theme builder (Plymouth); optional, run by hand
+    install -Dm755 "$src/plymouth/cyberpunk-splash-plymouth" \
+        "$pkgdir/usr/bin/cyberpunk-splash-plymouth"
 
     # animated wallpaper plugin (settings per screen, and for the lock screen)
     local wp="$pkgdir/usr/share/plasma/wallpapers/org.cyberpunk.wallpaper"
